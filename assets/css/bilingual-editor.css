@@ -46,3 +46,18 @@
 .vm-bi-paragraph-map li{padding:.36rem .45rem;line-height:1.45;border-bottom:1px solid #eee1d6;overflow-wrap:anywhere}
 .vm-bi-paragraph-map li.selected{background:#f2e3d3;border-left:3px solid #813527;border-radius:4px}
 #bi-image-position-wrap[hidden],#bi-paragraph-map[hidden]{display:none}
+
+/* V15: paragraph list is an actual accessible selection control. */
+.vm-bi-paragraph-instruction{margin:.6rem 0;font-size:.87rem;color:#67544a}
+.vm-bi-paragraph-map ol{list-style:none;padding-left:0;max-height:340px}
+.vm-bi-paragraph-map li.vm-bi-paragraph-row{padding:0;border-bottom:1px solid #eee1d6}
+.vm-bi-paragraph-map li.vm-bi-paragraph-row.selected{background:transparent;border-left:0}
+.vm-bi-paragraph-choice{display:grid;grid-template-columns:2rem minmax(0,1fr) max-content;gap:.6rem;align-items:center;width:100%;padding:.8rem .65rem;border:2px solid transparent;border-radius:7px;background:transparent;text-align:left;color:#342b27;font:inherit;line-height:1.45;cursor:pointer}
+.vm-bi-paragraph-choice:hover{background:#f3e9e0;border-color:#dec4ae}
+.vm-bi-paragraph-choice:focus-visible{outline:3px solid #813527;outline-offset:1px}
+.vm-bi-paragraph-row.selected .vm-bi-paragraph-choice{background:#f2e3d3;border-color:#813527}
+.vm-bi-paragraph-number{font-weight:700;color:#813527;align-self:start}
+.vm-bi-paragraph-text{overflow-wrap:anywhere}
+.vm-bi-paragraph-action{font-size:.82rem;font-weight:750;color:#813527;white-space:nowrap}
+.vm-bi-paragraph-empty{color:#756359}
+@media(max-width:680px){.vm-bi-paragraph-choice{grid-template-columns:1.5rem minmax(0,1fr);gap:.4rem}.vm-bi-paragraph-action{grid-column:2;white-space:normal}}

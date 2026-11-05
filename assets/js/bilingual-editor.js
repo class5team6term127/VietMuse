@@ -10,6 +10,8 @@ const client=(window.supabase&&cfg.supabaseUrl&&cfg.publishableKey)?window.supab
 const allowedCats=['thoi-su','doi-song','giao-duc','van-hoa','cong-nghe','kinh-te','moi-truong','du-lich','suc-khoe','giai-tri','the-thao'];
 const cats=(window.SITE?.categories||[]).filter(c=>allowedCats.includes(c.slug));
 let user=null,role='reader',editing=null,pair=null,sourceItems=[],working=false;
+// Keep a separate image-placement choice for each translation.
+const chosenParagraph={vi:1,en:1};
 function status(message,type='info'){const box=$('#bi-status');if(!box)return;box.hidden=false;box.className=`vm-bi-status ${type}`;box.textContent=message;box.scrollIntoView({behavior:'smooth',block:'nearest'});}
 function safeUrl(url){try{const u=new URL(url);return u.protocol==='https:'&&u.host?u.href:null}catch{return null}}
 function field(label,name,val='',attrs=''){return `<label class="vm-bi-field">${label}<input name="${name}" value="${esc(val)}" ${attrs}></label>`}
@@ -42,7 +44,7 @@ ${field('Caption / Chú thích ảnh','image_caption','','maxlength="180"')}
 ${field('Source / Nguồn ảnh','image_source','','maxlength="180"')}
 <label class="vm-bi-field">Upload photo (max 2 MB)<input type="file" id="bi-inline-file" accept="image/png,image/jpeg,image/webp"></label></div>
 <div class="vm-bi-paragraph-helper" aria-live="polite"><strong id="bi-paragraph-count"></strong><p id="bi-paragraph-selected" class="vm-bi-help"></p>
-<details id="bi-paragraph-map" class="vm-bi-paragraph-map"><summary>${tx('Xem các đoạn văn đã đếm','View numbered paragraphs')}</summary><ol id="bi-paragraph-outline"></ol></details></div>
+<details id="bi-paragraph-map" class="vm-bi-paragraph-map"><summary>${tx('Chọn vị trí bằng cách bấm vào đoạn văn','Click a paragraph to choose image position')}</summary><p class="vm-bi-paragraph-instruction">${tx('Bấm vào đoạn văn bên dưới để chọn chèn ảnh ngay SAU đoạn đó. Đoạn được chọn sẽ có viền nâu.','Tap any paragraph below to insert an image AFTER it. The selected paragraph is highlighted.')}</p><ol id="bi-paragraph-outline" aria-label="${tx('Các đoạn văn có thể chọn','Selectable paragraphs')}"></ol></details></div>
 <div class="vm-bi-toolbar"><button type="button" id="bi-insert-url" class="vm-bi-btn">+ ${tx('Chèn URL ảnh','Insert image link')}</button><button type="button" id="bi-upload-inline" class="vm-bi-btn">↑ ${tx('Tải ảnh và chèn','Upload & insert image')}</button><a href="./thu-vien-anh.html" target="_blank" rel="noopener" class="vm-bi-btn">${tx('Mở thư viện ảnh','Open Media Library')} ↗</a></div>
 <p class="vm-bi-help">${tx('Hệ thống tự đếm các đoạn văn của phiên bản đã chọn. Mỗi đoạn cách nhau bằng một dòng trống (nhấn Enter hai lần). Tiêu đề phụ, trích dẫn, danh sách và ảnh sẵn có không được tính là đoạn văn. Có thể chuyển sang chế độ con trỏ nếu muốn chèn thủ công như trước.','Paragraphs are counted automatically in the selected language. Separate paragraphs with a blank line (press Enter twice). Headings, quotes, lists and existing images are not counted. Switch to cursor mode to insert manually as before.')}</p></section>
 <div class="vm-bi-actions"><button type="button" class="vm-bi-btn" data-bi-save="draft">${tx('Lưu nháp','Save draft')}</button><button type="button" class="vm-bi-btn" data-bi-save="pending">${tx('Gửi chờ duyệt','Send for review')}</button><button type="button" class="vm-bi-btn primary" data-bi-save="published">${tx('Xuất bản cả VI + EN','Publish both VI + EN')}</button></div>
@@ -67,20 +69,34 @@ function currentParagraphs(){const lang=$('#bi-image-lang')?.value||'vi';return 
 function updateParagraphChoices(){
  const select=$('#bi-image-position'),mode=$('#bi-image-mode'),wrap=$('#bi-image-position-wrap');
  if(!select||!mode)return;
- const paras=currentParagraphs(),previous=Number(select.value)||1,number=Math.max(1,Math.min(previous,paras.length));
- const after=mode.value==='after';
+ const lang=$('#bi-image-lang').value,paras=currentParagraphs(),after=mode.value==='after';
+ const selected=Math.max(1,Math.min(Number(chosenParagraph[lang])||1,paras.length||1));
+ chosenParagraph[lang]=selected;
  wrap.hidden=!after;
  select.innerHTML=paras.map(p=>`<option value="${p.number}">${tx('Sau đoạn','After paragraph')} ${p.number} — ${esc(p.text.slice(0,65))}${p.text.length>65?'…':''}</option>`).join('');
- if(paras.length)select.value=String(number);
+ if(paras.length)select.value=String(selected);
  select.disabled=!paras.length;
  const count=$('#bi-paragraph-count');
- count.textContent=tx(`${paras.length} đoạn văn trong bản ${$('#bi-image-lang').value.toUpperCase()}`,`${paras.length} paragraphs in the ${$('#bi-image-lang').value.toUpperCase()} version`);
+ count.textContent=tx(`${paras.length} đoạn văn trong bản ${lang.toUpperCase()}`,`${paras.length} paragraphs in the ${lang.toUpperCase()} version`);
  const detail=$('#bi-paragraph-selected');
- detail.textContent=after?(paras.length?tx(`Ảnh sẽ nằm ngay sau đoạn ${select.value}.`,`The image will appear immediately after paragraph ${select.value}.`):tx('Chưa có đoạn văn. Nhập nội dung trước hoặc chuyển sang chế độ con trỏ.','No paragraphs found. Write the article or switch to cursor mode.')):tx('Chế độ con trỏ: chèn ảnh tại nơi đang chọn trong nội dung.','Cursor mode: insert at the current cursor position.');
+ detail.textContent=after?(paras.length?tx(`Đã chọn đoạn ${selected}: ảnh sẽ chèn ngay sau đoạn này.`,`Selected paragraph ${selected}: the image will appear immediately after it.`):tx('Chưa có đoạn văn. Nhập nội dung trước hoặc chuyển sang chế độ con trỏ.','No paragraphs found. Write the article or switch to cursor mode.')):tx('Chế độ con trỏ: chèn ảnh tại nơi đang chọn trong nội dung.','Cursor mode: insert at the current cursor position.');
  const list=$('#bi-paragraph-outline');
- list.innerHTML=paras.map(p=>`<li${after&&p.number===Number(select.value)?' class="selected"':''}><span>${esc(p.text.slice(0,180))}${p.text.length>180?'…':''}</span></li>`).join('')||`<li>${tx('Chưa có đoạn nào','No paragraphs yet')}</li>`;
+ list.innerHTML=paras.map(p=>{
+   const active=after&&p.number===selected;
+   return `<li class="vm-bi-paragraph-row${active?' selected':''}"><button type="button" class="vm-bi-paragraph-choice" data-bi-paragraph-number="${p.number}" aria-pressed="${active?'true':'false'}" aria-label="${esc(tx(`Chọn chèn ảnh sau đoạn ${p.number}`,`Insert image after paragraph ${p.number}`))}"><span class="vm-bi-paragraph-number">${p.number}.</span><span class="vm-bi-paragraph-text">${esc(p.text.slice(0,180))}${p.text.length>180?'…':''}</span><span class="vm-bi-paragraph-action">${active?tx('✓ Đã chọn','✓ Selected'):tx('Chọn đoạn này','Select this')}</span></button></li>`;
+ }).join('')||`<li class="vm-bi-paragraph-empty">${tx('Chưa có đoạn nào','No paragraphs yet')}</li>`;
  $('#bi-paragraph-map').hidden=!after;
 }
+function chooseParagraph(number){
+ const lang=$('#bi-image-lang').value;
+ const paragraphs=currentParagraphs();
+ if(!Number.isInteger(number)||number<1||number>paragraphs.length)return;
+ chosenParagraph[lang]=number;
+ // Selecting a preview also moves the real form dropdown, not just its highlight.
+ $('#bi-image-mode').value='after';
+ updateParagraphChoices();
+}
+
 function insertImageInPosition(url){
  const lang=$('#bi-image-lang').value;
  if($('#bi-image-mode').value==='cursor'){insertText(lang,imageSnippet(url));return null;}
@@ -97,7 +113,12 @@ document.querySelectorAll('[data-insert]').forEach(b=>b.addEventListener('click'
 document.querySelectorAll('[data-preview]').forEach(b=>b.addEventListener('click',()=>{const lang=b.dataset.preview,box=$(`#bi-preview-${lang}`);box.hidden=!box.hidden;if(!box.hidden){const text=$(`[name="${lang}_body"]`).value;box.innerHTML=window.VMStoryBody?window.VMStoryBody(text):`<p>${esc(text)}</p>`;}}));
 $('#bi-image-lang').addEventListener('change',updateParagraphChoices);
 $('#bi-image-mode').addEventListener('change',updateParagraphChoices);
-$('#bi-image-position').addEventListener('change',updateParagraphChoices);
+$('#bi-image-position').addEventListener('change',()=>{chosenParagraph[$('#bi-image-lang').value]=Number($('#bi-image-position').value);updateParagraphChoices()});
+// Event delegation survives the list being rebuilt while the author edits the body.
+$('#bi-paragraph-outline').addEventListener('click',event=>{
+ const button=event.target.closest('[data-bi-paragraph-number]');
+ if(button)chooseParagraph(Number(button.dataset.biParagraphNumber));
+});
 for(const lang of ['vi','en'])$(`[name="${lang}_body"]`).addEventListener('input',()=>{if($('#bi-image-lang').value===lang)updateParagraphChoices()});
 updateParagraphChoices();
 $('#bi-insert-url').addEventListener('click',()=>{try{const index=insertImageInPosition($('[name="image_url"]').value.trim());status(index?tx(`Đã chèn ảnh sau đoạn ${index}.`,`Image inserted after paragraph ${index}.`):tx('Đã chèn ảnh tại con trỏ.','Image inserted at the cursor.'),'ok')}catch(e){status(e.message,'error')}});
