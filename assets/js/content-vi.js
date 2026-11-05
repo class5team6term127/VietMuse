@@ -1,7 +1,7 @@
 /* Vietnamese editorial sample content. The English originals are in data.js. */
 window.VIETMUSE_VI = {
   "site": {
-    "tagline": "Nơi câu chuyện và góc nhìn gặp nhau.",
+    "tagline": "Linh hồn sau mỗi câu chuyện",
     "description": "VietMuse là dự án báo chí và diễn đàn góc nhìn song ngữ do nhóm sinh viên xây dựng."
   },
   "categories": {
