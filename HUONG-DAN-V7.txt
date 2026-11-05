@@ -1,0 +1,27 @@
+VIETMUSE V7 — SỬA TRẠNG THÁI TÀI KHOẢN
+
+Chỉ upload HAI file sau từ ZIP này, giữ đúng đường dẫn:
+  tai-khoan.html
+  assets/js/v3.js
+
+KHÔNG UPLOAD file SQL cấp admin lên GitHub.
+
+Sau khi GitHub Pages triển khai xong, mở trang tai-khoan.html và làm mới Cmd+Shift+R.
+
+Nếu tài khoản không có bài đăng và database đã hoạt động:
+- Tiếng Việt: Chưa đăng bài
+- Tiếng Anh: Haven't submitted yet
+
+Nếu thiếu bảng news_posts, giao diện vẫn báo lỗi cấu hình để không nhầm với tài khoản trống.
+
+SỬA DATABASE Ở SUPABASE SQL EDITOR
+1. Chạy: SELECT to_regclass('public.news_posts') AS news_posts_table;
+2. Nếu trả về NULL, mở backend/02-V3-SUPABASE.sql trong bộ website đầy đủ và chạy MỘT LẦN.
+3. Sau đó chạy backend/03-VIETMUSE-BILINGUAL.sql nếu chưa chạy.
+4. Chạy: NOTIFY pgrst, 'reload schema';
+5. Truy cập lại trang web.
+
+QUYỀN QUẢN TRỊ
+1. Đăng ký/xác minh email muốn dùng trong Authentication > Users.
+2. Sau khi có các bảng, chạy file SQL cấp admin RIÊNG trong Supabase SQL Editor.
+3. Đăng xuất, đăng nhập lại; mở duyet-bai.html.

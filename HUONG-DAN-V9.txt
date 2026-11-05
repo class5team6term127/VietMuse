@@ -1,0 +1,18 @@
+VIETMUSE V9 — CẬP NHẬT MENU & BỘ LỌC
+
+1. Giữ Most Read, chuyển ngay sau Home trên menu chính (VI: Đọc nhiều).
+2. Mở Most Read sẽ mặc định sắp xếp theo lượt đọc (số lượt xem CMS thống kê).
+3. Mỗi trang chuyên mục, kể cả Góc nhìn, có bộ lọc Mới cập nhật / Đọc nhiều.
+4. Menu ba gạch trên điện thoại có Đăng nhập / Đăng ký ở CUỐI; Đăng ký vào đúng tab Create account.
+5. Khi đã đăng nhập, menu hiển thị Tài khoản của tôi thay cho Đăng nhập/Đăng ký.
+
+CÀI TRÊN GITHUB
+- Tải bản cập nhật nhỏ V9 và giải nén.
+- Thay các file theo đúng đường dẫn trong repository (KHÔNG tạo thư mục lồng).
+- Commit changes, vào Actions để kiểm tra GitHub Pages deploy.
+- Mở trang bằng tab riêng tư hoặc Cmd+Shift+R.
+
+Không cần chạy SQL mới; không chỉnh Supabase config.js.
+Lượt xem là số liệu ghi nhận trong Supabase, không phải độc giả duy nhất.
+Nếu chưa có bài được xuất bản, bộ lọc vẫn hiện nhưng danh sách trống.
+Bộ lọc cũng xuất hiện ở trang chuyên mục bài demo khi cơ sở dữ liệu tạm không kết nối.
