@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#813527">
+  <meta name="description" content="Confirm your VietMuse email address and return to the news website.">
+  <title>Email confirmation | VietMuse</title>
+  <link rel="icon" href="./assets/images/vietmuse-favicon.png" type="image/png">
+  <style>
+    :root {--paper:#EEEAE6;--beige:#D7B689;--gold:#C38C55;--red:#813527;--ink:#292420;--muted:#71645d}
+    *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--paper);color:var(--ink)}
+    body{font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;min-height:100dvh;display:flex;flex-direction:column}
+    .top{border-bottom:1px solid #d9cdc3;padding:18px clamp(18px,5vw,70px);display:flex;align-items:center;justify-content:space-between;gap:20px}
+    .wordmark{font:bold clamp(23px,4vw,32px) Georgia,"Times New Roman",serif;color:var(--ink);text-decoration:none;white-space:nowrap}
+    .wordmark span{color:var(--red)}
+    .lang{background:transparent;border:1px solid #b5a399;padding:9px 13px;font-weight:700;color:var(--red);border-radius:7px;cursor:pointer}
+    main{flex:1;display:flex;align-items:center;justify-content:center;padding:32px 16px}
+    .card{width:min(100%,580px);padding:clamp(25px,6vw,50px);border:1px solid #ddcec2;background:#fffdfa;box-shadow:0 10px 34px #5b372815;border-radius:12px;text-align:center}
+    .round{display:flex;align-items:center;justify-content:center;background:#f3e8de;color:var(--red);font-size:33px;font-weight:700;width:76px;height:76px;border-radius:50%;margin:0 auto 22px}
+    .eyebrow{font-size:11px;letter-spacing:.18em;color:var(--red);text-transform:uppercase;font-weight:800}
+    h1{font:bold clamp(26px,5vw,40px) Georgia,"Times New Roman",serif;margin:16px 0 12px;line-height:1.12}
+    p{line-height:1.7;font-size:16px;color:var(--muted);margin:0 auto 22px;max-width:420px}
+    .actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+    .button{display:inline-flex;align-items:center;justify-content:center;padding:13px 18px;border-radius:6px;text-decoration:none;min-height:45px;font-size:14px;font-weight:700}
+    .primary{background:var(--red);color:white}.outline{border:1px solid #cbb8aa;color:var(--red);background:white}
+    .button:focus-visible,.lang:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+    .foot{text-align:center;color:#8d7c72;font-size:12px;padding:18px}
+    [hidden]{display:none!important}
+    @media(max-width:440px){.actions{display:grid;grid-template-columns:1fr}.card{padding:28px 22px}.top{padding:16px 20px}}
+  </style>
+  <script defer src="./assets/js/config.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script defer src="./assets/js/auth-confirm.js?v=20261105-v11"></script>
+</head>
+<body>
+  <header class="top"><a href="./index.html" class="wordmark">Viet<span>Muse</span></a><button class="lang" type="button" id="switch-lang" aria-label="Switch language">VI / EN</button></header>
+  <main><section class="card" aria-live="polite" aria-atomic="true">
+    <div class="round" aria-hidden="true" id="state-symbol">…</div>
+    <div class="eyebrow" id="state-kicker">VIETMUSE / ACCOUNT</div>
+    <h1 id="state-title">Checking your confirmation…</h1>
+    <p id="state-message">We are checking your email verification status.</p>
+    <div class="actions"><a class="button primary" href="./index.html" id="go-home">Back to homepage</a><a class="button outline" href="./tai-khoan.html?mode=login" id="go-login">Sign in</a></div>
+  </section></main>
+  <footer class="foot">© VietMuse · The spirit behind stories</footer>
+</body>
+</html>
