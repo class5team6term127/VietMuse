@@ -7,7 +7,7 @@ window.SITE = {
   "brandMain": "Viet",
   "brandAccent": "Muse",
   "shortName": "VM",
-  "tagline": "Where stories and perspectives meet.",
+  "tagline": "The spirit behind stories",
   "description": "VietMuse is a bilingual student-led news and community perspectives project.",
   "useOnlinePhotos": true,
   "categories": [
