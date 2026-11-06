@@ -554,3 +554,15 @@ a{color:inherit;text-decoration:none}a:hover{color:var(--brick)}button,input{fon
    Browser extensions do not expose a standard on/off API to websites. */
 :root{color-scheme:light}
 .vm-theme-mark img{transition:opacity .12s ease}
+
+/* V19c: logo-only adjustment (not a website theme or OS dark-mode switch). */
+.vm-logo-mode-control{display:inline-flex;flex:0 0 auto;align-items:center;justify-content:center;gap:5px;padding:7px 9px;background:transparent;border:1px solid rgba(255,255,255,.38);color:#F9F1E9;border-radius:4px;font-size:11px;font-weight:700;line-height:1;white-space:nowrap;cursor:pointer}
+.vm-logo-mode-control:hover,.vm-logo-mode-control:focus-visible{background:rgba(255,255,255,.12);color:white}
+.vm-logo-mode-control [aria-hidden]{font-size:17px;line-height:1}
+.vm-logo-mode-text{font-family:var(--sans);font-size:10px}
+html[data-vm-logo-theme="dark"] .brand-name,html[data-vm-logo-theme="dark"] .brand-name em{color:#F2C7C1}
+html[data-vm-logo-theme="dark"] .brand-tagline{color:#B9ADAA}
+html[data-vm-logo-theme="dark"] .nav-home .vm-nav-mark{background:#292522}
+html[data-vm-logo-theme="dark"] .footer-logo .footer-mark{background:#292522}
+@media(max-width:650px){.vm-logo-mode-control{padding:6px 7px;margin-left:0;gap:3px}.vm-logo-mode-text{font-size:9px}}
+@media(max-width:370px){.vm-logo-mode-text{display:none}}
