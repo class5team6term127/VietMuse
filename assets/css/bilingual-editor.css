@@ -92,3 +92,12 @@
 .vm-mc-card.vm-mc-collapsed .vm-mc-card-head{border:0;margin:0;padding:0}
 .vm-mc-card.vm-mc-collapsed{background:#fbf7f0;border-color:#e1d1c4}
 @media(max-width:700px){.vm-mc-card{padding:.75rem}.vm-mc-head-actions{gap:.25rem}.vm-mc-head-actions .vm-bi-btn{font-size:.72rem;padding:.35rem .48rem}.vm-mc-card-head h3{font-size:.93rem}}
+
+/* V20: published links and irreversible delete belong inside the bilingual editor. */
+.vm-bi-management{display:flex;justify-content:space-between;gap:1rem;align-items:center;margin:0 0 1.25rem}
+.vm-bi-management .vm-bi-section-head{margin-bottom:.25rem}
+.vm-bi-management .vm-bi-help{margin:.25rem 0;max-width:610px}
+.vm-bi-management-actions{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:.65rem}
+.vm-bi-btn.danger{color:#972f28;border-color:#b55a50;background:#fffafa}
+.vm-bi-btn.danger:hover,.vm-bi-btn.danger:focus-visible{color:#82231e;background:#fde8e6}
+@media(max-width:700px){.vm-bi-management{display:block}.vm-bi-management-actions{justify-content:flex-start;margin-top:.9rem}.vm-bi-management-actions .vm-bi-btn{flex:1 1 150px}}

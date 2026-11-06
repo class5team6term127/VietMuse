@@ -566,3 +566,10 @@ html[data-vm-logo-theme="dark"] .nav-home .vm-nav-mark{background:#292522}
 html[data-vm-logo-theme="dark"] .footer-logo .footer-mark{background:#292522}
 @media(max-width:650px){.vm-logo-mode-control{padding:6px 7px;margin-left:0;gap:3px}.vm-logo-mode-text{font-size:9px}}
 @media(max-width:370px){.vm-logo-mode-text{display:none}}
+
+/* V20: one compact edit action per article. View/Delete now live in the editor. */
+.vm-nr-actions .vm-nr-edit-icon{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;font-size:1.4rem;padding:5px 10px;line-height:1}
+.vm-nr-inside-manage{gap:.7rem;align-items:center}
+.vm-nr-inside-manage strong{color:#813527;margin-right:auto}
+.vm-nr-inside-manage .vm-nr-help{flex:1 1 260px}
+@media(max-width:700px){.vm-nr-inside-manage{align-items:stretch}.vm-nr-inside-manage .vm-nr-btn{min-height:44px}}
