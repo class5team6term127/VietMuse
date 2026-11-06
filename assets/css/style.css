@@ -549,31 +549,8 @@ a{color:inherit;text-decoration:none}a:hover{color:var(--brick)}button,input{fon
   .vm-daily-note .vm-quote-text{font-size:12px;line-height:1.5;margin:4px 0}
   .vm-quote-kicker,.vm-quote-date{font-size:8px}
 }
-/* Selected brand mark follows the operating system's light/dark setting. */
-@media(prefers-color-scheme:dark){
-  :root{
-    color-scheme:dark;
-    --ivory:#211B19;--paper:#2C2421;--white:#342B27;
-    --ink:#F5EEE8;--muted:#CDBEB4;--line:#55463D;
-    --brick:#D7B689;
-  }
-  .nav-wrap{background:#813527;color:#FCF4EC}
-  .nav-wrap .main-nav>a,.nav-wrap .mobile-toggle,.nav-wrap .nav-home{color:#FCF4EC}
-  .nav-wrap .vm-language button{color:#FCF4EC}
-  .nav-home .vm-nav-mark{background:#332925}
-  .footer-logo .footer-mark{background:#3D322C}
-  .topbar{background:#171211}
-  .masthead .vm-daily-note{border-color:#C38C55}
-  .masthead .vm-quote-kicker{color:#E3B591}
-  .masthead .brand-name em{color:#E3B591}
-  .masthead .brand-tagline{color:#CDBEB4}
-  .masthead .header-search input{color:var(--ink)}
-  .masthead .header-search input::placeholder{color:#BAA79F}
-  .trending-strip{background:#29211E;color:#EDE2D9}
-  .footer{background:#171211}
-  .reader-article .vm-credit-author{color:#F2E5DC}
-  .reader-article .vm-credit-role,.reader-article .vm-credit-date{color:#CEBEB4}
-  .reader-article .vm-credit-role b{color:#EACABC}
-  .story-photo,.archive-hero-photo{background:#3A2D28}
-  /* Rely on color tokens for main panels; retain editorial brick navigation. */
-}
+/* V19b: Use the site's light palette by default, regardless of OS dark mode.
+   An external browser dark-mode extension is responsible for rendering a dark page.
+   Browser extensions do not expose a standard on/off API to websites. */
+:root{color-scheme:light}
+.vm-theme-mark img{transition:opacity .12s ease}
