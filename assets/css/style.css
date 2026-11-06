@@ -512,3 +512,68 @@ a{color:inherit;text-decoration:none}a:hover{color:var(--brick)}button,input{fon
     overscroll-behavior-y:contain;
   }
 }
+
+/* =======================================================
+   VietMuse V19 · Daily bilingual line and automatic OS logos
+   ======================================================= */
+.vm-daily-note{
+  min-width:0;max-width:270px;padding:16px 15px 15px 0;
+  border-left:2px solid var(--ochre);padding-left:14px;
+  color:var(--ink);
+}
+.vm-quote-kicker{display:block;letter-spacing:.14em;font-size:9px;color:var(--brick);font-weight:800}
+.vm-daily-note .vm-quote-text{
+  font-family:var(--serif);font-size:13px;font-weight:500;line-height:1.52;
+  margin:9px 0 9px;letter-spacing:-.017em;color:var(--ink);text-wrap:pretty;
+}
+.vm-quote-date{display:block;font-family:var(--sans);font-size:9px;letter-spacing:.07em;font-weight:600;color:var(--muted)}
+.vm-theme-mark{display:block;line-height:0;flex:0 0 auto;}
+.vm-theme-mark img{display:block}
+.brand .vm-theme-mark{margin:0 auto}
+.nav-home .vm-theme-mark{display:inline-flex;align-items:center;justify-content:center;width:29px;height:29px}
+.nav-home .vm-nav-mark{width:29px;height:29px;object-fit:contain;background:#fff;border-radius:50%;padding:2px}
+.footer-logo .vm-theme-mark{display:inline-flex;align-items:center}
+/* Show daily thought on tablets and phones, not just desktop. */
+@media(max-width:810px) and (min-width:651px){
+  .masthead{grid-template-columns:minmax(0,1fr) auto;row-gap:2px;padding-top:14px;padding-bottom:12px}
+  .masthead .brand{grid-column:1;grid-row:1}
+  .masthead .masthead-right{grid-column:2;grid-row:1}
+  .masthead .masthead-left{display:block;grid-column:1/-1;grid-row:2;max-width:100%;padding:6px 0 5px 12px}
+  .vm-daily-note .vm-quote-text{font-size:12px;margin:3px 0}
+  .vm-quote-kicker,.vm-quote-date{font-size:8px}
+}
+@media(max-width:650px){
+  .masthead{display:flex;flex-direction:column;align-items:center;gap:10px;min-height:0;padding:12px 0 17px}
+  .masthead .masthead-left{display:block;order:2;max-width:340px;width:100%;padding:7px 12px 7px 14px;margin:0 auto;border-left:2px solid var(--ochre);text-align:center;border-right:2px solid var(--ochre)}
+  .masthead .brand{order:1}
+  .vm-daily-note .vm-quote-text{font-size:12px;line-height:1.5;margin:4px 0}
+  .vm-quote-kicker,.vm-quote-date{font-size:8px}
+}
+/* Selected brand mark follows the operating system's light/dark setting. */
+@media(prefers-color-scheme:dark){
+  :root{
+    color-scheme:dark;
+    --ivory:#211B19;--paper:#2C2421;--white:#342B27;
+    --ink:#F5EEE8;--muted:#CDBEB4;--line:#55463D;
+    --brick:#D7B689;
+  }
+  .nav-wrap{background:#813527;color:#FCF4EC}
+  .nav-wrap .main-nav>a,.nav-wrap .mobile-toggle,.nav-wrap .nav-home{color:#FCF4EC}
+  .nav-wrap .vm-language button{color:#FCF4EC}
+  .nav-home .vm-nav-mark{background:#332925}
+  .footer-logo .footer-mark{background:#3D322C}
+  .topbar{background:#171211}
+  .masthead .vm-daily-note{border-color:#C38C55}
+  .masthead .vm-quote-kicker{color:#E3B591}
+  .masthead .brand-name em{color:#E3B591}
+  .masthead .brand-tagline{color:#CDBEB4}
+  .masthead .header-search input{color:var(--ink)}
+  .masthead .header-search input::placeholder{color:#BAA79F}
+  .trending-strip{background:#29211E;color:#EDE2D9}
+  .footer{background:#171211}
+  .reader-article .vm-credit-author{color:#F2E5DC}
+  .reader-article .vm-credit-role,.reader-article .vm-credit-date{color:#CEBEB4}
+  .reader-article .vm-credit-role b{color:#EACABC}
+  .story-photo,.archive-hero-photo{background:#3A2D28}
+  /* Rely on color tokens for main panels; retain editorial brick navigation. */
+}
