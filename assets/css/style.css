@@ -364,3 +364,74 @@ a{color:inherit;text-decoration:none}a:hover{color:var(--brick)}button,input{fon
 
 /* V12 bilingual stories */
 .vm-translation-switch{display:inline-block;margin:1rem 0;padding:.6rem 1rem;border:1px solid #813527;border-radius:7px;color:#813527;font-weight:700;text-decoration:none}.vm-translation-switch:hover{background:#EEEAE6}.vm-article-source{font-size:.9rem;color:#69544d;margin:.6rem 0}.vm-article-source a{color:#813527;text-decoration:underline}
+
+/* V17 — responsive, accessible embedded videos in news articles and editor preview. */
+.vm-inline-video{margin:34px auto 30px;max-width:100%}
+.vm-video-player{position:relative;width:100%;aspect-ratio:16/9;background:#181513;border-radius:8px;overflow:hidden}
+.vm-video-player iframe,.vm-video-player video{width:100%;height:100%;display:block;border:0;object-fit:contain}
+.vm-inline-video figcaption{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:.84rem;text-align:center;line-height:1.5;color:#78695f;margin-top:10px}
+.vm-inline-video .vm-photo-source{font-size:.76rem;color:#6c5e56}
+.vm-media-page .vm-media-tile video{width:100%;aspect-ratio:16/9;object-fit:cover;background:#261c19;border-radius:5px}
+.vm-media-page .vm-media-upload select{display:block;width:100%;border:1px solid #c6ab96;border-radius:6px;padding:.5rem;background:#fff}
+
+/* VietMuse V17: full-width editorial cards. Earlier 118px inline-grid layout
+   became too narrow when category grids had three columns. */
+.v3 .community-grid,.v3-home .community-grid{align-items:start}
+.v3 .community-card,.v3-home .community-card{display:flex;flex-direction:column;align-items:stretch;gap:0;overflow:hidden;min-width:0}
+.v3 .community-thumb,.v3-home .community-thumb{width:100%;height:auto;min-height:0;aspect-ratio:16/9;display:block;overflow:hidden;border-radius:5px;background:#eee5da;margin:0 0 11px}
+.v3 .community-thumb img,.v3-home .community-thumb img{display:block;width:100%;height:100%;aspect-ratio:16/9;object-fit:cover;object-position:center;max-width:100%}
+.v3 .community-thumb img.vm-cover-placeholder,.v3-home .community-thumb img.vm-cover-placeholder,
+.v3 .community-thumb img[src$="vietmuse-mark.webp"],.v3-home .community-thumb img[src$="vietmuse-mark.webp"]{object-fit:contain;padding:12%;background:#e8ddcd}
+.v3 .community-card>div,.v3-home .community-card>div{min-width:0;width:100%;overflow-wrap:anywhere}
+.v3 .community-card h3,.v3-home .community-card h3{font-size:clamp(1.03rem,1.5vw,1.23rem);line-height:1.42;margin:.35rem 0 .6rem;overflow-wrap:anywhere}
+.v3 .community-card p,.v3-home .community-card p{font-size:.86rem;line-height:1.6;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden}
+.v3 .community-card small,.v3-home .community-card small{font-size:.75rem;line-height:1.5;display:block;overflow-wrap:anywhere}
+.v3 .vm-category-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;padding:.65rem .9rem;border-left:3px solid #813527;background:#f6eee5}
+.v3 .vm-category-toolbar label{display:flex;align-items:center;gap:.75rem;flex:0 1 auto;margin:0;font-size:.84rem}
+.v3 .vm-category-toolbar select{min-width:160px;max-width:100%;margin:0}
+@media(max-width:900px){.v3 .community-grid,.v3-home .community-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.v3 .community-grid,.v3-home .community-grid{grid-template-columns:1fr;gap:1rem}.v3 .community-card,.v3-home .community-card{padding:0 0 1rem}.v3 .community-card h3,.v3-home .community-card h3{font-size:1.07rem}.v3 .vm-category-toolbar{align-items:stretch}.v3 .vm-category-toolbar label{justify-content:space-between;flex:1 1 100%}.v3 .vm-category-toolbar select{width:min(55%,220px)}}
+/* Page-wide VI/EN language switch controls article language; no duplicate translation button. */
+.vm-translation-switch{display:none!important}
+/* Denser newsroom byline on reader pages, especially small screens. */
+.reader-article .vm-credit-bar{gap:.7rem;padding:.75rem 0;margin-top:1.05rem}
+.reader-article .vm-credit-avatar{width:38px;height:38px;font-size:.95rem}
+.reader-article .vm-credit-author{font-size:.9rem}
+.reader-article .vm-credit-more{font-size:.79rem;line-height:1.45}
+@media(max-width:620px){.reader-article .vm-credit-bar{gap:.55rem;padding:.6rem 0}.reader-article .vm-credit-avatar{width:34px;height:34px}.reader-article .vm-credit-more span{display:inline-block}}
+
+/* FINAL V17: headline/card separation + compact article credits. */
+.v3 .community-card,.v3-home .community-card{
+  display:flex;flex-direction:column;align-items:stretch;gap:0;min-width:0;overflow:visible;
+}
+.v3 .community-thumb,.v3-home .community-thumb{
+  flex:0 0 auto;position:relative;display:block;width:100%;height:auto;
+  aspect-ratio:16/9;margin:0 0 12px;overflow:hidden;border-radius:6px;
+}
+.v3 .community-thumb .vm-story-cover,.v3-home .community-thumb .vm-story-cover{
+  position:static;display:block;width:100%;height:100%;aspect-ratio:16/9;
+  object-fit:cover;object-position:center;max-width:none;
+}
+.v3 .community-card>div,.v3-home .community-card>div{
+  flex:1 1 auto;min-width:0;position:relative;overflow-wrap:anywhere;
+}
+.v3 .community-card h3,.v3-home .community-card h3{
+  position:static;max-width:100%;margin:.35rem 0 .5rem;line-height:1.4;
+}
+.reader-article .vm-credit-bar{
+  display:flex;align-items:baseline;justify-content:center;flex-wrap:wrap;
+  gap:.2rem .55rem;max-width:100%;margin:1.1rem auto 0;padding:.6rem 0;
+  border-top:1px solid #d7b689;border-bottom:1px solid #d7b689;
+  font-family:var(--sans);font-size:.79rem;line-height:1.5;text-align:center;
+}
+.reader-article .vm-credit-bar>span,.reader-article .vm-credit-bar>time{display:inline;min-width:0;overflow-wrap:anywhere}
+.reader-article .vm-credit-bar>:not(:first-child)::before{content:"·";color:#a98f7b;margin-right:.55rem}
+.reader-article .vm-credit-author{font-size:.87rem;font-weight:750;color:#573e34}
+.reader-article .vm-credit-role,.reader-article .vm-credit-date{font-size:.79rem;font-weight:400;color:#70645c}
+.reader-article .vm-credit-role b{font-weight:650;color:#65473c}
+@media(max-width:620px){
+  .reader-article .vm-credit-bar{margin-top:.8rem;padding:.5rem 0;gap:.1rem .4rem}
+  .reader-article .vm-credit-bar>:not(:first-child)::before{margin-right:.4rem}
+}
+/* The site-wide VI/EN control is the only visible language switch. */
+.vm-translation-switch{display:none!important}

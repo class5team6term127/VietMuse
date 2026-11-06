@@ -31,6 +31,18 @@ function renderStoryBody(body){
      }
      continue;
    }
+   // [[video|HTTPS YouTube/Vimeo/direct MP4/WebM URL|caption|source]].
+   const vid=line.match(/^\[\[video\|(https:\/\/[^|\]\s]+)\|([^|\]]*)(?:\|([^\]]*))?\]\]$/);
+   if(vid){
+     flush();const info=window.VMStoryMedia?.videoInfo(vid[1]);
+     if(info){
+       const title=String(vid[2]||'').trim(),source=String(vid[3]||'').trim();
+       const credit=(title?'<span>'+html(title)+'</span>':'')+(source?'<small class="vm-photo-source">'+(window.VIETMUSE_LANG==='vi'?'Nguồn':'Source')+': '+html(source)+'</small>':'');
+       const player=info.kind==='iframe'?'<iframe loading="lazy" src="'+html(info.src)+'" title="'+html(title||'Embedded '+info.provider+' video')+'" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>':'<video controls preload="metadata" playsinline src="'+html(info.src)+'">'+html('Your browser does not support this video.')+'</video>';
+       out.push('<figure class="vm-inline-video"><div class="vm-video-player">'+player+'</div>'+(credit?'<figcaption>'+credit+'</figcaption>':'')+'</figure>');
+     }
+     continue;
+   }
    if(/^#{2,3} /.test(line)){flush();const level=line.startsWith('### ')?3:2,txt=line.slice(level+1);out.push('<h'+level+' class="vm-story-heading">'+html(txt)+'</h'+level+'>');continue}
    if(line.startsWith('> ')){flush();out.push('<blockquote class="vm-story-quote">'+html(line.slice(2))+'</blockquote>');continue}
    if(line.startsWith('- ')){if(paragraphs.length)flush();items.push(line.slice(2));continue}
@@ -39,15 +51,18 @@ function renderStoryBody(body){
 }
 window.VMStoryBody=renderStoryBody;
 function articleCredits(p){
- const name=String(p.author_name||'VietMuse').trim(),initial=name.split(/\s+/).map(x=>x[0]).slice(-2).join('').toUpperCase(),c=[];
- if(p.editor_name)c.push('<span><b>'+(window.VIETMUSE_LANG==='vi'?'Biên tập viên':'Editor')+':</b> '+html(p.editor_name)+'</span>');
- if(p.translator_name)c.push('<span><b>'+(window.VIETMUSE_LANG==='vi'?'Dịch giả':'Translator')+':</b> '+html(p.translator_name)+'</span>');
- c.push('<span>'+stamp(p.published_at||p.created_at)+'</span>');
- return '<div class="vm-credit-bar"><div class="vm-credit-avatar" aria-hidden="true">'+html(initial)+'</div><div class="vm-credit-details"><span class="vm-credit-author">'+html(name)+'</span><div class="vm-credit-more">'+c.join('')+'</div></div></div>';
+ const name=String(p.author_name||'VietMuse').trim();
+ const isVi=window.VIETMUSE_LANG==='vi';
+ const parts=['<span class="vm-credit-author">'+html(name)+'</span>'];
+ if(p.editor_name)parts.push('<span class="vm-credit-role"><b>'+(isVi?'Biên tập':'Editor')+':</b> '+html(p.editor_name)+'</span>');
+ if(p.translator_name)parts.push('<span class="vm-credit-role"><b>'+(isVi?'Dịch giả':'Translator')+':</b> '+html(p.translator_name)+'</span>');
+ const date=p.published_at||p.created_at;
+ parts.push('<time class="vm-credit-date"'+(date?' datetime="'+html(String(date).slice(0,10))+'"':'')+'>'+stamp(date)+'</time>');
+ return '<div class="vm-credit-bar">'+parts.join('')+'</div>';
 }
 function alertUI(message,error=false){let box=$('#v3-toast');if(!box){box=document.createElement('div');box.id='v3-toast';box.className='community-toast';box.setAttribute('role','status');document.body.append(box)}box.textContent=window.VietMuseI18n.t(message);box.className='community-toast show'+(error?' error':'');setTimeout(()=>box.classList.remove('show'),4500)}
 function shell(title,kicker,description,body){return `<div class="shell inner-page community-page v3"><div class="archive-heading"><span class="section-kicker">${html(kicker)}</span><h1>${html(title)}<span class="period">.</span></h1><p>${html(description)}</p></div>${body}</div>`}
-function articlePic(p,cl=''){let src=isUrl(p.cover_url)||'./assets/images/books.svg';return `<img class="${cl}" src="${html(src)}" alt="Illustrative image for article" loading="lazy">`}
+function articlePic(p,cl=''){let src=isUrl(p.cover_url)||'./assets/images/vietmuse-mark.webp';return `<img class="vm-story-cover ${cl}" src="${html(src)}" alt="${html(p.cover_url?'Article cover': 'VietMuse')}" loading="lazy">`}
 function card(p){const m=metrics[p.id]||{};return `<article class="community-card"><a href="${path(p)}" class="community-thumb">${articlePic(p)}</a><div><span class="small-category">${html(category(p.category))}${p.post_type==='forum'?' · FORUM':''} · ${p.language==='en'?'EN':'VI'}</span><h3><a href="${path(p)}">${html(p.title)}</a></h3>${p.excerpt?.trim()?`<p>${html(p.excerpt)}</p>`:''}<small>${stamp(p.published_at)} · ${Number(m.views||0).toLocaleString(window.VIETMUSE_LANG==='vi'?'vi-VN':'en-GB')} views · ${Number(m.comments||0).toLocaleString(window.VIETMUSE_LANG==='vi'?'vi-VN':'en-GB')} responses</small></div></article>`}
 function ranked(p,key,i){const m=metrics[p.id]||{};return `<a class="ranking-row" href="${path(p)}"><b>${String(i+1).padStart(2,'0')}</b><span>${html(p.title)}<small>${Number(m[key]||0)} ${key==='views'?'views':'comments'}</small></span></a>`}
 function list(kind,cat='all',sorting='new'){let a=allPosts.filter(x=>x.status==='published'&&(kind==='all'||x.post_type===kind)&&(cat==='all'||x.category===cat)&&(!x.language||x.language===window.VIETMUSE_LANG));a.sort((x,y)=>sorting==='views'?((metrics[y.id]?.views||0)-(metrics[x.id]?.views||0)||new Date(y.published_at||y.created_at||0)-new Date(x.published_at||x.created_at||0)):sorting==='comments'?(metrics[y.id]?.comments||0)-(metrics[x.id]?.comments||0):sorting==='updated'?new Date(y.updated_at||y.published_at||y.created_at||0)-new Date(x.updated_at||x.published_at||x.created_at||0):new Date(y.published_at||y.created_at||0)-new Date(x.published_at||x.created_at||0));return a}
@@ -139,15 +154,26 @@ async function loadPoll(p){const {data:opts,error}=await sb.from('news_poll_opti
 async function updatePoll(id){let [s,v]=await Promise.all([sb.rpc('news_poll_summary',{p_post_id:id}),me?sb.from('news_votes').select('option_id').eq('post_id',id).eq('user_id',me.id).maybeSingle():Promise.resolve({data:null})]);for(const c of s.data||[]){let el=$(`[data-count="${c.option_id}"]`);if(el)el.textContent=Number(c.total).toLocaleString('en-GB')}
 $$('[data-choice]').forEach(b=>b.classList.toggle('selected',b.dataset.choice===v.data?.option_id))}
 async function viewArticle(){const id=new URLSearchParams(location.search).get('id');if(!id||!sb){$('#page-content').innerHTML=shell('Article','ARTICLE','',note);return}const {data:p,error}=await sb.from('news_posts').select('*').eq('id',id).maybeSingle();if(error||!p){$('#page-content').innerHTML=shell('Story not found','ARTICLE','This story is still pending approval or has been deleted.','<a href="./index.html">Home →</a>');return}currentPost=p;document.body.dataset.articleLanguage=p.language||'';document.title=p.title+' | '+window.SITE.name;
-let translationLink='';
+// Language switching is handled exclusively by the site-wide VI/EN control.
+// Keep the paired post URL as a data attribute, never render a duplicate link.
+delete document.body.dataset.translationVi;
+delete document.body.dataset.translationEn;
 if(p.post_type==='news'&&p.translation_group){
-  const langOther=p.language==='vi'?'en':'vi';
-  const {data:other,error:translationError}=await sb.from('news_posts').select('id').eq('translation_group',p.translation_group).eq('language',langOther).eq('status','published').maybeSingle();
-  if(!translationError&&other?.id){translationLink=`<a class="vm-translation-switch" href="./bai-ban-doc.html?id=${encodeURIComponent(other.id)}">${langOther==='vi'?'🇻🇳 Read Vietnamese version':'🇬🇧 Read English version'} →</a>`}
+  const otherLang=p.language==='vi'?'en':'vi';
+  const {data:other,error:translationError}=await sb.from('news_posts').select('id').eq('translation_group',p.translation_group).eq('language',otherLang).eq('status','published').maybeSingle();
+  if(!translationError&&other?.id){
+    document.body.dataset[otherLang==='vi'?'translationVi':'translationEn'] = `./bai-ban-doc.html?id=${encodeURIComponent(other.id)}`;
+  }
+}
+// If a reader lands on the other language's direct URL, respect their VI/EN preference.
+const desiredLanguage=window.VIETMUSE_LANG;
+if(p.language&&p.language!==desiredLanguage){
+  const translatedUrl=document.body.dataset[desiredLanguage==='vi'?'translationVi':'translationEn'];
+  if(translatedUrl){location.replace(translatedUrl);return;}
 }
 let sourceLink='';
 if(p.source_url){try{const u=new URL(p.source_url);if(u.protocol==='https:'){sourceLink=`<p class="vm-article-source">Source / Nguồn: <a rel="noopener noreferrer" target="_blank" href="${html(u.href)}">${html(p.source_name||u.hostname)}</a></p>`}}catch{}}
-$('#page-content').innerHTML=`<div class="shell inner-page reader-article v3"><p class="breadcrumbs"><a href="./index.html">Home</a> › <a href="./chuyen-muc.html?muc=${html(p.category)}">${html(category(p.category))}</a></p><header class="reader-head"><span class="small-category">${p.post_type==='forum'?'PERSPECTIVES · FORUM':html(category(p.category))}</span><h1>${html(p.title)}</h1>${p.excerpt?.trim()?`<p>${html(p.excerpt)}</p>`:''}${articleCredits(p)}${translationLink}${sourceLink}${p.status!=='published'?`<span class="status-pill status-${html(p.status)}">${statusTxt(p.status)} · not public</span>`:''}</header>${p.cover_url?articlePic(p,'reader-cover'):''}<div class="reader-body">${renderStoryBody(p.body)}<p class="editorial-disclaimer">${p.post_type==='forum'?'This reader submission has been reviewed. Its views do not necessarily represent the editorial team.':'This story is managed by the editorial team.'}</p>${p.status==='published'&&p.post_type==='forum'&&p.poll_enabled?`<div id="v3-poll">${loading}</div>`:''}${p.status==='published'?commentArea(p):''}</div></div>`;
+$('#page-content').innerHTML=`<div class="shell inner-page reader-article v3"><p class="breadcrumbs"><a href="./index.html">Home</a> › <a href="./chuyen-muc.html?muc=${html(p.category)}">${html(category(p.category))}</a></p><header class="reader-head"><span class="small-category">${p.post_type==='forum'?'PERSPECTIVES · FORUM':html(category(p.category))}</span><h1>${html(p.title)}</h1>${p.excerpt?.trim()?`<p>${html(p.excerpt)}</p>`:''}${articleCredits(p)}${sourceLink}${p.status!=='published'?`<span class="status-pill status-${html(p.status)}">${statusTxt(p.status)} · not public</span>`:''}</header>${p.cover_url?articlePic(p,'reader-cover'):''}<div class="reader-body">${renderStoryBody(p.body)}<p class="editorial-disclaimer">${p.post_type==='forum'?'This reader submission has been reviewed. Its views do not necessarily represent the editorial team.':'This story is managed by the editorial team.'}</p>${p.status==='published'&&p.post_type==='forum'&&p.poll_enabled?`<div id="v3-poll">${loading}</div>`:''}${p.status==='published'?commentArea(p):''}</div></div>`;
 if(p.status==='published'){loadComments(p);if(p.post_type==='forum'&&p.poll_enabled)loadPoll(p);let token=null;try{token=localStorage.getItem('v3-visitor')||crypto.randomUUID();localStorage.setItem('v3-visitor',token)}catch{}if(token)sb.rpc('news_track_view',{p_post_id:p.id,p_token:token})}}
 async function sendComment(form){if(!me||!currentPost)return alertUI('Sign in is required.',true);let fd=new FormData(form),record={post_id:currentPost.id,user_id:me.id,display_name:String(fd.get('display_name')).trim(),body:String(fd.get('body')).trim(),kind:currentPost.post_type==='forum'?'opinion':'comment',status:'pending'};let {error}=await sb.from('news_comments').insert(record);if(error)return alertUI(error.message,true);form.reset();alertUI('Submitted. Your response is awaiting review.');loadComments(currentPost)}
 async function vote(id,optionId){if(!me)return alertUI('Sign in to vote.',true);const {error}=await sb.from('news_votes').upsert({post_id:id,user_id:me.id,option_id:optionId},{onConflict:'post_id,user_id'});if(error)return alertUI(error.message,true);alertUI('Your vote has been recorded.');updatePoll(id)}
@@ -163,6 +189,7 @@ function podcast(){const episodes=(window.PODCASTS||[]).filter(p=>p.title&&isUrl
 function render(){const page=document.body.dataset.page,root=$('#page-content');if(!root)return;if(!ready){if(['submit','account','moderation','reader'].includes(page))root.innerHTML=shell('Data connection','SETUP / REQUIRED','Account features require a Supabase connection.',note);return}switch(page){case 'home':root.innerHTML=homepage();break;case 'category':root.innerHTML=archives();break;case 'search':root.innerHTML=searchPage();break;case 'explore':root.innerHTML=explore();refreshExplore();break;case 'submit':root.innerHTML=submitPage();break;case 'account':root.innerHTML=accountPage();break;case 'moderation':root.innerHTML=adminPage();break;case 'podcast':root.innerHTML=podcast();break;case 'reader':viewArticle();break;case 'article':root.innerHTML=shell('Demo articles moved to CMS','ARTICLE / MIGRATION','V2 example stories are only fallback sample data now.','<p>Ask an editor to import sample stories into the CMS and publish suitable material. <a href="./index.html">Back to home →</a></p>');break;case 'saved':root.innerHTML=shell('Saved stories','READING LIST','V2 bookmarks apply only to legacy sample articles.','<p>V3 does not yet sync new bookmarks. You can bookmark this page in your browser.</p>');break}window.VietMuseWeather.mount()}
 async function refreshPublic(){await fetchPosts();const page=document.body.dataset.page;if(['home','category','search','explore'].includes(page))render()}
 function attach(){document.addEventListener('submit',e=>{const f=e.target;if(['v3-submit','v3-auth','v3-editor-form','v3-comment','v3-grant'].includes(f.id)){e.preventDefault();if(f.id==='v3-submit')sendForum(f);if(f.id==='v3-auth')auth(f);if(f.id==='v3-editor-form')saveNews(f,e.submitter);if(f.id==='v3-comment')sendComment(f);if(f.id==='v3-grant')grantRole(f)}});
+document.addEventListener('error',e=>{if(e.target?.matches?.('img.vm-story-cover')&&!e.target.dataset.fallback){e.target.dataset.fallback='1';e.target.src='./assets/images/vietmuse-mark.webp';e.target.classList.add('vm-cover-placeholder');}},true);
 document.addEventListener('change',e=>{if(e.target.id==='v3-sort'){sort=e.target.value;refreshExplore()}if(e.target.id==='v3-filter'){filter=e.target.value;refreshExplore()}if(e.target.id==='v3-category-sort'){refreshCategory()}if(['v3-admin-status','v3-admin-type'].includes(e.target.id))renderStaffPosts();if(e.target.id==='v3-poll-switch'){const group=$('#v3-options-list'),add=$('#v3-add-option');if(group)$$('input',group).forEach(x=>x.disabled=!e.target.checked);if(add)add.disabled=!e.target.checked||$$('.v3-poll-choice').length>=6}});
 document.addEventListener('click',async e=>{let el=e.target.closest('[data-auth]');if(el){mode=el.dataset.auth;render();return}if(e.target.closest('#v3-logout')){await sb.auth.signOut();me=null;role='reader';render();alertUI('Signed out.');return}if(e.target.closest('#v3-add-option')){const old=$$('.v3-poll-choice');if(old.length>=6)return;$('#v3-options-list').insertAdjacentHTML('beforeend',`<label>Option ${old.length+1}<input class="v3-poll-choice" required maxlength="120"></label>`);if(old.length+1>=6)e.target.disabled=true;return}
 el=e.target.closest('[data-choice]');if(el){vote(el.dataset.postId,el.dataset.choice);return}el=e.target.closest('[data-review]');if(el){el.disabled=true;await review(el.dataset.id,el.dataset.review);return}el=e.target.closest('[data-delete]');if(el){await deletePost(el.dataset.delete);return}el=e.target.closest('[data-mod-comment]');if(el){await reviewComment(el.dataset.id,el.dataset.modComment);return}el=e.target.closest('[data-delete-comment]');if(el){await reviewComment(el.dataset.deleteComment,'',true);return}el=e.target.closest('[data-edit-news]');if(el){const p=staffPosts.find(x=>x.id===el.dataset.editNews);if(p){location.href='./soan-bai-song-ngu.html?id='+encodeURIComponent(p.id)}return}if(e.target.closest('#v3-cancel-edit')){$('#v3-staff-editor').innerHTML=staffForm();return}if(e.target.closest('#v3-import')){await importOld();return}el=e.target.closest('[data-revoke]');if(el){await revokeRole(el.dataset.revoke);return}})}

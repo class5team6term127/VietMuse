@@ -5,7 +5,7 @@
  */
 (function (root) {
   'use strict';
-  const imageLine = /^\[\[image\|https:\/\/[^|\]\s]+\|[^|\]]*(?:\|[^\]]*)?\]\]$/;
+  const mediaLine = /^\[\[(?:image|video)\|https:\/\/[^|\]\s]+\|[^|\]]*(?:\|[^\]]*)?\]\]$/;
 
   function findParagraphs(body) {
     const input = String(body ?? '').replace(/\r\n?/g, '\n');
@@ -17,7 +17,7 @@
     };
     for (const raw of input.split('\n')) {
       const line = raw.trim();
-      const special = !line || imageLine.test(line) || /^#{2,3} /.test(line) ||
+      const special = !line || mediaLine.test(line) || /^#{2,3} /.test(line) ||
         line.startsWith('> ') || line.startsWith('- ');
       if (special) {
         finish();
@@ -33,18 +33,22 @@
     return out;
   }
 
-  function insertAfter(body, paragraphNumber, imageMarker) {
+  function insertAfter(body, paragraphNumber, mediaMarker) {
     const normalized = String(body ?? '').replace(/\r\n?/g, '\n');
     const paras = findParagraphs(normalized);
     const number = Number(paragraphNumber);
     if (!Number.isInteger(number) || number < 1 || number > paras.length) {
       throw new RangeError('Choose a paragraph in the article before inserting the image.');
     }
-    const marker = String(imageMarker ?? '').trim();
-    if (!/^\[\[image\|https:\/\//.test(marker) || !imageLine.test(marker)) {
-      throw new TypeError('A valid image marker is required.');
+    const marker = String(mediaMarker ?? '').trim();
+    if (!/^\[\[(?:image|video)\|https:\/\//.test(marker) || !mediaLine.test(marker)) {
+      throw new TypeError('A valid media marker is required.');
     }
-    const index = paras[number - 1].end;
+    // Preserve editor insertion order when several photos/videos follow the same paragraph.
+    let index = paras[number - 1].end;
+    const inlineMedia = /^(?:\n+\[\[(?:image|video)\|[^\r\n]+\]\])+/;
+    const existing = normalized.slice(index).match(inlineMedia);
+    if (existing) index += existing[0].length;
     const before = normalized.slice(0, index);
     const after = normalized.slice(index);
     // Keep image on its own line. Existing following newlines supply part of the separator.

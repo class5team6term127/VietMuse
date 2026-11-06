@@ -61,3 +61,34 @@
 .vm-bi-paragraph-action{font-size:.82rem;font-weight:750;color:#813527;white-space:nowrap}
 .vm-bi-paragraph-empty{color:#756359}
 @media(max-width:680px){.vm-bi-paragraph-choice{grid-template-columns:1.5rem minmax(0,1fr);gap:.4rem}.vm-bi-paragraph-action{grid-column:2;white-space:normal}}
+
+/* V17 — repeatable image/video cards */
+.vm-mc-list{display:grid;gap:1rem}.vm-mc-card{background:#fff;border:1px solid #d7b689;border-radius:11px;padding:1.2rem;box-shadow:0 6px 18px rgba(55,30,18,.04)}
+.vm-mc-card-head{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding-bottom:.8rem;margin-bottom:.9rem;border-bottom:1px solid #ecded0}
+.vm-mc-card-head h3{font-family:Georgia,serif;margin:0;color:#813527;font-size:1.15rem;display:flex;flex-wrap:wrap;align-items:center;gap:.7rem}
+.vm-mc-tag{font:600 .7rem/1.4 system-ui,sans-serif;letter-spacing:.03em;border-radius:99px;padding:.2rem .5rem;background:#f0e5da;color:#86563b}
+.vm-mc-card[data-mc-inserted="yes"] .vm-mc-tag{background:#deeee5;color:#326846}
+.vm-mc-full{grid-column:1/-1}.vm-mc-position-help{margin-top:.9rem;color:#6d5447;font-size:.9rem}
+.vm-mc-map{margin:.8rem 0;padding:.7rem 1rem;border:1px solid #ebdacb;border-radius:8px;background:#fbf7f1}.vm-mc-map ol{padding:0;margin:.7rem 0 0;max-height:300px;overflow:auto;list-style:none}
+.vm-mc-add{width:100%;margin-top:1rem;border:1px dashed #813527;background:#f7ede2;min-height:51px}
+.vm-mc-remove{font-size:.79rem;padding:.45rem .7rem}.vm-mc-card [hidden]{display:none!important}
+@media(max-width:700px){.vm-mc-card{padding:1rem}.vm-mc-card-head{align-items:flex-start}.vm-mc-card-head h3{font-size:1rem}.vm-mc-remove{flex-shrink:0}}
+
+/* VietMuse V17: compact repeatable media controls. */
+.vm-mc-list{gap:.7rem}
+.vm-mc-card{padding:.8rem 1rem;box-shadow:none}
+.vm-mc-card-head{margin-bottom:.65rem;padding-bottom:.55rem}
+.vm-mc-card-head h3{font-size:1rem}
+.vm-mc-head-actions{display:flex;gap:.45rem;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.vm-mc-head-actions .vm-bi-btn{padding:.33rem .6rem;font-size:.77rem}
+.vm-mc-card .vm-bi-grid{column-gap:.7rem;row-gap:.6rem}
+.vm-mc-card .vm-bi-field{font-size:.8rem;gap:.22rem}
+.vm-mc-card .vm-bi-field input,.vm-mc-card .vm-bi-field select{padding:.49rem .6rem;font-size:.85rem}
+.vm-mc-card .vm-mc-position-help{font-size:.78rem;margin:.5rem 0}
+.vm-mc-card .vm-mc-map{padding:.4rem .7rem;margin:.45rem 0}
+.vm-mc-card .vm-bi-toolbar{margin:.45rem 0}
+.vm-mc-card .vm-bi-help{font-size:.76rem;margin:.35rem 0;line-height:1.5}
+.vm-mc-card.vm-mc-collapsed>.vm-bi-grid,.vm-mc-card.vm-mc-collapsed>.vm-mc-position-help,.vm-mc-card.vm-mc-collapsed>.vm-mc-map,.vm-mc-card.vm-mc-collapsed>.vm-bi-toolbar,.vm-mc-card.vm-mc-collapsed>.vm-bi-help{display:none!important}
+.vm-mc-card.vm-mc-collapsed .vm-mc-card-head{border:0;margin:0;padding:0}
+.vm-mc-card.vm-mc-collapsed{background:#fbf7f0;border-color:#e1d1c4}
+@media(max-width:700px){.vm-mc-card{padding:.75rem}.vm-mc-head-actions{gap:.25rem}.vm-mc-head-actions .vm-bi-btn{font-size:.72rem;padding:.35rem .48rem}.vm-mc-card-head h3{font-size:.93rem}}
