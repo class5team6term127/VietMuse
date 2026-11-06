@@ -435,3 +435,80 @@ a{color:inherit;text-decoration:none}a:hover{color:var(--brick)}button,input{fon
 }
 /* The site-wide VI/EN control is the only visible language switch. */
 .vm-translation-switch{display:none!important}
+
+
+/* =========================================================
+   VietMuse V18 · Persistent navigation / larger nav typography
+   #site-header is a plain div. Removing its layout box lets
+   the sticky nav follow the entire document, not just the
+   short header wrapper. Its DOM children keep their order.
+   ========================================================= */
+#site-header{display:contents}
+.nav-wrap{
+  position:sticky;
+  top:0;
+  z-index:1000;
+  width:100%;
+  box-shadow:0 4px 18px rgba(49,28,22,.16);
+}
+.nav-wrap .nav-inner{
+  display:flex;
+  flex-wrap:nowrap;
+  align-items:center;
+  gap:12px;
+  min-height:59px;
+}
+.nav-wrap .nav-home{flex:0 0 auto}
+.nav-wrap .main-nav{
+  display:flex;
+  flex:1 1 auto;
+  min-width:0;
+  flex-wrap:nowrap;
+  align-items:center;
+  column-gap:clamp(14px,1.65vw,24px);
+  row-gap:0;
+  white-space:nowrap;
+  overflow-x:auto;
+  overflow-y:hidden;
+  scrollbar-width:none;
+  overscroll-behavior-x:contain;
+  -webkit-overflow-scrolling:touch;
+}
+.nav-wrap .main-nav::-webkit-scrollbar{display:none}
+.nav-wrap .main-nav>a{
+  flex:0 0 auto;
+  font-size:13px; /* original desktop ~10px: +3px */
+  line-height:1.35;
+  padding:19px 0;
+}
+.nav-wrap .vm-language{flex:0 0 auto;margin-left:0}
+.nav-wrap .vm-language button{font-size:14px} /* 11px -> 14px */
+/* Laptops: keep navigation legible without squashing all links. */
+@media(max-width:1150px){
+  .nav-wrap .main-nav>a{font-size:12px} /* original 9px: +3px */
+  .nav-wrap .nav-inner{gap:9px}
+}
+/* A mobile menu expands down instead of becoming a horizontal strip. */
+@media(max-width:650px){
+  .nav-wrap .nav-inner{min-height:52px;flex-wrap:wrap;gap:8px}
+  .nav-wrap .main-nav{
+    display:none;
+    flex:0 0 100%;
+    min-width:0;
+    flex-direction:column;
+    align-items:stretch;
+    gap:0;
+    overflow:visible;
+    white-space:normal;
+  }
+  .nav-wrap.mobile-open .main-nav{display:flex}
+  .nav-wrap .main-nav>a{font-size:15px;line-height:1.5;padding:12px 0}
+  .nav-wrap .main-nav .mobile-nav-auth a{font-size:15px}
+  .nav-wrap .mobile-toggle{font-size:14px}
+  .nav-wrap .vm-language button{font-size:14px}
+  .nav-wrap.mobile-open .nav-inner{
+    max-height:calc(100dvh - env(safe-area-inset-top,0px));
+    overflow-y:auto;
+    overscroll-behavior-y:contain;
+  }
+}
