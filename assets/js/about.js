@@ -65,7 +65,7 @@
   };
   // The five photographs are locally hosted optimized versions of user-provided Drive images.
   const team = [
-    {name:'Đào Mai Chi',email:'daomaichi@gmail',photo:'dao-mai-chi.webp'},
+    {name:'Đào Mai Chi',email:'daomaichi@gmail.com',photo:'dao-mai-chi.webp'},
     {name:'Nguyễn Minh Phúc',email:'nguyenminhphuc@gmail.com',photo:'nguyen-minh-phuc.webp'},
     {name:'Nguyễn Minh Trang',email:'nguyenminhtrang@gmail.com',photo:'nguyen-minh-trang.webp'},
     {name:'Nguyễn Minh Khuê',email:'nguyenminhkhue@gmail.com',photo:'nguyen-minh-khue.webp'},
