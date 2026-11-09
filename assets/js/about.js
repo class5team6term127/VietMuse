@@ -21,10 +21,11 @@
     missionLeft:'ROOTED IN VIETNAM', missionRight:'OPEN TO THE WORLD',
     boardLabel:'03 / EDITORIAL BOARD',
     boardHeadA:'The voices', boardHeadB:'shaping VietMuse.',
-    board:'Meet the minds driving our stories, explore our editorial standards, and discover how each contributor enriches our perspective. Full masthead and columnist profiles coming soon.',
+    board:'Meet the minds driving our stories, explore our editorial standards, and discover how each contributor enriches our perspective.',
     boardMark:'OUR COLLECTIVE CRAFT',
     roleOne:'Research', roleTwo:'Writing',roleThree:'Design',roleFour:'Technology',
-    boardComing:'FULL MASTHEAD & COLUMNIST PROFILES · COMING SOON',
+    boardComing:'FIVE PEOPLE · ONE SHARED PURPOSE',
+    teamKicker:'THE FACES BEHIND THE STORIES', teamHeadA:'The people', teamHeadB:'of VietMuse.', teamLead:'Five individuals, one shared love of stories worth telling.', teamEmail:'Email',
     endTop:'THE NEXT CHAPTER',endHeadA:'Every story has',endHeadB:'a soul.',
     endText:'Find the stories and perspectives that bring VietMuse to life.',
     cta:'Explore stories',forum:'Join the conversation',
@@ -51,18 +52,43 @@
     missionLeft:'BẮT RỄ TỪ VIỆT NAM', missionRight:'MỞ RA THẾ GIỚI',
     boardLabel:'03 / BAN BIÊN TẬP',
     boardHeadA:'Những tiếng nói', boardHeadB:'định hình VietMuse.',
-    board:'Gặp gỡ những người làm nên các câu chuyện của chúng tôi, tìm hiểu các chuẩn mực biên tập và khám phá đóng góp của từng thành viên. Danh sách ban biên tập đầy đủ và hồ sơ các cây bút sẽ sớm được cập nhật.',
+    board:'Gặp gỡ những người làm nên các câu chuyện của chúng tôi, tìm hiểu các chuẩn mực biên tập và khám phá đóng góp của từng thành viên.',
     boardMark:'NHỮNG LĨNH VỰC CỘNG TÁC',
     roleOne:'Nghiên cứu', roleTwo:'Viết bài',roleThree:'Thiết kế',roleFour:'Công nghệ',
-    boardComing:'DANH SÁCH BAN BIÊN TẬP & HỒ SƠ CÂY BÚT · SẮP RA MẮT',
+    boardComing:'NĂM GƯƠNG MẶT · MỘT TINH THẦN CHUNG',
+    teamKicker:'NHỮNG GƯƠNG MẶT SAU MỖI CÂU CHUYỆN', teamHeadA:'Con người', teamHeadB:'VietMuse.', teamLead:'Năm thành viên, cùng chia sẻ tình yêu dành cho những câu chuyện đáng kể.', teamEmail:'Email',
     endTop:'CHƯƠNG TIẾP THEO',endHeadA:'Mỗi câu chuyện',endHeadB:'đều có linh hồn.',
     endText:'Khám phá những câu chuyện và góc nhìn làm nên VietMuse.',
     cta:'Khám phá bài viết',forum:'Cùng chia sẻ góc nhìn',
     artCaption:'Minh họa biên tập lấy cảm hứng từ di sản văn hóa Việt Nam.',
     back:'Trang chủ'
   };
+  // The five photographs are locally hosted optimized versions of user-provided Drive images.
+  const team = [
+    {name:'Đào Mai Chi',email:'daomaichi@gmail',photo:'dao-mai-chi.webp'},
+    {name:'Nguyễn Minh Phúc',email:'nguyenminhphuc@gmail.com',photo:'nguyen-minh-phuc.webp'},
+    {name:'Nguyễn Minh Trang',email:'nguyenminhtrang@gmail.com',photo:'nguyen-minh-trang.webp'},
+    {name:'Nguyễn Minh Khuê',email:'nguyenminhkhue@gmail.com',photo:'nguyen-minh-khue.webp'},
+    {name:'Nguyễn Thị Vân Anh',email:'nguyenthivananh@gmail.com',photo:'nguyen-thi-van-anh.webp'}
+  ];
   const d = window.VIETMUSE_LANG === 'vi' ? vi : en;
   const e = str => String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const teamCards = () => team.map((member,index)=>{
+    const emailValid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(member.email);
+    const contact = emailValid
+      ? `<a href="mailto:${encodeURIComponent(member.email)}">${e(member.email)} <span aria-hidden="true">↗</span></a>`
+      : `<span class="vm-about-team-email-plain">${e(member.email)}</span>`;
+    return `<article class="vm-about-team-card">
+      <div class="vm-about-team-portrait">
+        <img src="./assets/images/team/${e(member.photo)}" loading="lazy" decoding="async" width="720" height="900" alt="${e(member.name)}">
+        <span class="vm-about-team-photo-num" aria-hidden="true">${String(index+1).padStart(2,'0')} / 05</span>
+      </div>
+      <div class="vm-about-team-card-info">
+        <h4>${e(member.name)}</h4>
+        <p><span class="vm-about-team-mail-label">${e(d.teamEmail)}</span>${contact}</p>
+      </div>
+    </article>`;
+  }).join('');
   function render(){
     if(document.body.dataset.page!=='about')return;
     const root=document.getElementById('page-content');
@@ -125,6 +151,13 @@
           <div class="vm-about-board-top"><div><p class="vm-about-number">${e(d.boardLabel)}</p><h2 id="vm-about-board-head">${e(d.boardHeadA)} <em>${e(d.boardHeadB)}</em></h2></div><span class="vm-about-board-monogram" aria-hidden="true">VM.</span></div>
           <div class="vm-about-board-content"><p>${e(d.board)}</p><div class="vm-about-roles" aria-label="${e(d.boardMark)}"><span>${e(d.roleOne)}</span><span>${e(d.roleTwo)}</span><span>${e(d.roleThree)}</span><span>${e(d.roleFour)}</span></div></div>
           <div class="vm-about-board-status"><span class="vm-about-status-dot" aria-hidden="true"></span>${e(d.boardComing)}</div>
+          <div class="vm-about-team" id="vm-about-team" aria-labelledby="vm-about-team-heading">
+            <div class="vm-about-team-heading">
+              <div><p class="vm-about-team-kicker">${e(d.teamKicker)}</p><h3 id="vm-about-team-heading">${e(d.teamHeadA)} <em>${e(d.teamHeadB)}</em></h3></div>
+              <p class="vm-about-team-lede">${e(d.teamLead)}</p>
+            </div>
+            <div class="vm-about-team-grid">${teamCards()}</div>
+          </div>
         </section>
         <section class="vm-about-outro" aria-labelledby="vm-about-outro-head"><div class="shell vm-about-outro-inner"><div><p class="vm-about-eyebrow">${e(d.endTop)}</p><h2 id="vm-about-outro-head">${e(d.endHeadA)} <em>${e(d.endHeadB)}</em></h2><p>${e(d.endText)}</p></div><div class="vm-about-outro-actions"><a href="./index.html" class="vm-about-cta">${e(d.cta)} <span aria-hidden="true">↗</span></a><a class="vm-about-cta-secondary" href="./gui-bai.html">${e(d.forum)} <span aria-hidden="true">→</span></a></div></div></section>
       </div>`;
