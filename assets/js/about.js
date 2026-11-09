@@ -73,10 +73,14 @@
   ];
   const d = window.VIETMUSE_LANG === 'vi' ? vi : en;
   const e = str => String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const teamCards = () => team.map((member,index)=>{
+  // Icon is SVG rather than a Unicode arrow: mobile Safari can render ↗ as a blue emoji tile.
+  const diagonalArrow = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 18 18 6M8 6h10v10"/></svg>';
+  const straightArrow = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 12h16m-6-6 6 6-6 6"/></svg>';
+
+  const teamCards = () => team.map(member=>{
     const emailValid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(member.email);
     const contact = emailValid
-      ? `<a href="mailto:${encodeURIComponent(member.email)}">${e(member.email)} <span aria-hidden="true">↗</span></a>`
+      ? `<a href="mailto:${encodeURIComponent(member.email)}">${e(member.email)} ${diagonalArrow}</a>`
       : `<span class="vm-about-team-email-plain">${e(member.email)}</span>`;
     return `<article class="vm-about-team-card">
       <div class="vm-about-team-portrait">
@@ -116,17 +120,17 @@
           <div class="vm-about-hero-foot shell"><span>VIETMUSE / 2026</span><span>${e(d.small)}</span></div>
         </section>
         <section class="shell vm-about-intro" id="vm-about-intro" aria-labelledby="vm-about-intro-h">
-          <div class="vm-about-intro-label"><span class="vm-about-small-star" aria-hidden="true">✳</span><span id="vm-about-intro-h">${e(d.note)}</span></div>
+          <div class="vm-about-intro-label"><span class="vm-about-small-star" aria-hidden="true">✦</span><span id="vm-about-intro-h">${e(d.note)}</span></div>
           <p>${e(d.intro)}</p>
-          <div class="vm-about-intro-end" aria-hidden="true">↗</div>
+          <div class="vm-about-intro-end" aria-hidden="true">→</div>
         </section>
-        <div class="vm-about-marquee" aria-hidden="true"><span>${e(d.mantra)}</span><span class="vm-about-marquee-flower">✳</span><span>VIETMUSE</span></div>
+        <div class="vm-about-marquee" aria-hidden="true"><span>${e(d.mantra)}</span><span class="vm-about-marquee-flower">✦</span><span>VIETMUSE</span></div>
         <section class="shell vm-about-section vm-about-approach" id="vm-about-approach" aria-labelledby="vm-about-approach-head">
           <div class="vm-about-section-copy">
             <p class="vm-about-number">${e(d.approachLabel)}</p>
             <h2 id="vm-about-approach-head">${e(d.approachHeadA)} <em>${e(d.approachHeadB)}</em></h2>
             <p class="vm-about-section-body">${e(d.approach)}</p>
-            <div class="vm-about-section-rule"><span aria-hidden="true">✳</span><span>${e(d.approachTag)}</span></div>
+            <div class="vm-about-section-rule"><span aria-hidden="true">✦</span><span>${e(d.approachTag)}</span></div>
           </div>
           <figure class="vm-about-visual">
             <img src="./assets/images/culture.svg" loading="lazy" alt="${e(d.artCaption)}">
@@ -138,7 +142,7 @@
             <div class="vm-about-mission-heading">
               <p class="vm-about-number">${e(d.missionLabel)}</p>
               <h2 id="vm-about-mission-head">${e(d.missionHeadA)}<br><em>${e(d.missionHeadB)}</em></h2>
-              <div class="vm-about-mission-sigil" aria-hidden="true">✳</div>
+              <div class="vm-about-mission-sigil" aria-hidden="true">✦</div>
             </div>
             <div class="vm-about-mission-right">
               <p>${e(d.mission)}</p>
@@ -158,7 +162,7 @@
             <div class="vm-about-team-grid">${teamCards()}</div>
           </div>
         </section>
-        <section class="vm-about-outro" aria-labelledby="vm-about-outro-head"><div class="shell vm-about-outro-inner"><div><p class="vm-about-eyebrow">${e(d.endTop)}</p><h2 id="vm-about-outro-head">${e(d.endHeadA)} <em>${e(d.endHeadB)}</em></h2><p>${e(d.endText)}</p></div><div class="vm-about-outro-actions"><a href="./index.html" class="vm-about-cta">${e(d.cta)} <span aria-hidden="true">↗</span></a><a class="vm-about-cta-secondary" href="./gui-bai.html">${e(d.forum)} <span aria-hidden="true">→</span></a></div></div></section>
+        <section class="vm-about-outro" aria-labelledby="vm-about-outro-head"><div class="shell vm-about-outro-inner"><div><p class="vm-about-eyebrow">${e(d.endTop)}</p><h2 id="vm-about-outro-head">${e(d.endHeadA)} <em>${e(d.endHeadB)}</em></h2><p>${e(d.endText)}</p></div><div class="vm-about-outro-actions"><a href="./index.html" class="vm-about-cta">${e(d.cta)} ${diagonalArrow}</a><a class="vm-about-cta-secondary" href="./gui-bai.html">${e(d.forum)} ${straightArrow}</a></div></div></section>
       </div>`;
     // The site's language switcher reloads the page, so no extra UI event handlers needed.
   }

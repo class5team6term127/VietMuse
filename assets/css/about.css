@@ -72,15 +72,17 @@
 .vm-about-board-status{margin-top:47px;border-top:1px solid var(--ab-line);padding-top:23px;display:flex;align-items:center;gap:10px;color:#85776f;font-size:10px;font-weight:700;letter-spacing:.11em}
 .vm-about-status-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ab-gold)}
 .vm-about-outro{background:#43231f;color:#fff9f1;padding:86px 0 92px;position:relative;overflow:hidden}
-.vm-about-outro:before{content:'✳';position:absolute;right:-30px;top:-270px;font-family:var(--serif);font-size:500px;color:rgba(232,186,141,.065);line-height:1}
-.vm-about-outro-inner{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:40px;align-items:end}
+/* Use a CSS-drawn ornament, never a giant Unicode emoji: iOS renders ✳ as a green emoji tile. */
+.vm-about-outro:before{content:'';position:absolute;width:min(60vw,460px);height:min(60vw,460px);right:-115px;top:-155px;border-radius:50%;border:1px solid rgba(232,186,141,.17);box-shadow:0 0 0 38px rgba(232,186,141,.028),0 0 0 88px rgba(232,186,141,.022),inset 0 0 0 55px rgba(232,186,141,.025);pointer-events:none;z-index:0}"
+
+.vm-about-outro-inner{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:40px;align-items:end}
 .vm-about-outro h2{font-size:clamp(38px,4.5vw,65px);line-height:1.25;margin:0;max-width:700px}
 .vm-about-outro h2 em{color:var(--ab-gold);font-weight:500}
 .vm-about-outro p:not(.vm-about-eyebrow){color:#dfccc0;font-size:13px;line-height:1.9;margin:20px 0 0}
 .vm-about-outro-actions{display:flex;flex-direction:column;gap:16px;align-items:stretch;min-width:235px}
 .vm-about-cta{display:flex;justify-content:space-between;align-items:center;gap:20px;background:var(--ab-gold);color:#4b2c21;padding:17px 19px;font-size:11px;font-weight:800;transition:transform .2s,background .2s}
 .vm-about-cta:hover{color:#4b2c21;background:#edd2aa;transform:translateY(-2px)}
-.vm-about-cta span{font-size:17px}
+.vm-about-cta svg{width:19px;height:19px;display:block;flex:0 0 19px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .vm-about-cta-secondary{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:5px 0 12px;border-bottom:1px solid rgba(241,206,163,.4);color:#f2dbbf;font-size:11px;font-weight:700}
 .vm-about-cta-secondary:hover{color:white}
 @media(max-width:1000px){.vm-about-hero-inner{min-height:520px;grid-template-columns:1fr .8fr;gap:15px}.vm-about-hero h1{font-size:clamp(48px,6.4vw,76px)}.vm-about-art-bottom{right:0}.vm-about-intro{grid-template-columns:180px 1fr 20px;gap:20px}.vm-about-approach{gap:45px}.vm-about-visual{min-height:350px}.vm-about-visual img{height:300px}.vm-about-mission-inner{gap:50px}}
@@ -104,7 +106,6 @@
 .vm-about-team-portrait:after{content:'';position:absolute;inset:0;border:1px solid rgba(255,255,255,.35);pointer-events:none}
 .vm-about-team-portrait img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .5s ease}
 .vm-about-team-card:hover img{transform:scale(1.035)}
-.vm-about-team-photo-num{position:absolute;z-index:1;left:14px;top:13px;background:rgba(255,251,245,.95);color:#713126;padding:8px 10px;font-size:10px;letter-spacing:.1em;font-weight:800;line-height:1}
 .vm-about-team-card-info{min-width:0;padding:22px 20px 23px}
 .vm-about-team-card-info h4{color:var(--ab-ink);margin:0 0 17px;font:700 clamp(19px,1.7vw,24px)/1.22 var(--serif);letter-spacing:-.035em;overflow-wrap:anywhere}
 .vm-about-team-card-info p{display:flex;flex-wrap:wrap;gap:4px 0;border-top:1px solid #e9ddd3;padding-top:13px;margin:0;min-width:0}
@@ -131,3 +132,13 @@
  .vm-about-team-card-info p a,.vm-about-team-email-plain{font-size:13px}
 }
 @media(prefers-reduced-motion:reduce){.vm-about-team-card,.vm-about-team-portrait img{transition:none}}
+
+/* V23: stable, non-emoji arrow icons in Safari/iOS */
+.vm-about-cta-secondary svg{width:18px;height:18px;display:block;flex:0 0 18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.vm-about-team-card-info p a svg{width:14px;height:14px;display:inline-block;vertical-align:-2px;margin-left:4px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+@media(max-width:700px){
+  .vm-about-outro:before{width:260px;height:260px;right:-125px;top:-125px;box-shadow:0 0 0 26px rgba(232,186,141,.025),0 0 0 55px rgba(232,186,141,.018)}
+  .vm-about-outro-inner{position:relative;z-index:1}
+  .vm-about-outro-actions{max-width:none;width:100%}
+  .vm-about-cta{min-height:54px;gap:16px}
+}
