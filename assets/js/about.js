@@ -81,7 +81,6 @@
     return `<article class="vm-about-team-card">
       <div class="vm-about-team-portrait">
         <img src="./assets/images/team/${e(member.photo)}" loading="lazy" decoding="async" width="720" height="900" alt="${e(member.name)}">
-        <span class="vm-about-team-photo-num" aria-hidden="true">${String(index+1).padStart(2,'0')} / 05</span>
       </div>
       <div class="vm-about-team-card-info">
         <h4>${e(member.name)}</h4>
