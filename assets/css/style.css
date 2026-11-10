@@ -573,3 +573,61 @@ html[data-vm-logo-theme="dark"] .footer-logo .footer-mark{background:#292522}
 .vm-nr-inside-manage strong{color:#813527;margin-right:auto}
 .vm-nr-inside-manage .vm-nr-help{flex:1 1 260px}
 @media(max-width:700px){.vm-nr-inside-manage{align-items:stretch}.vm-nr-inside-manage .vm-nr-btn{min-height:44px}}
+
+
+/* ============================================================
+   VietMuse V22 — Equal-height editorial cards (VI / EN)
+   Keep titles complete; align the metadata and bottom rules across
+   cards in the same grid row. No fixed card height or text truncation.
+   ============================================================ */
+.v3-home .community-grid,
+.v3 .community-grid{
+  align-items:stretch; /* Override V17 align-items:start */
+}
+.v3-home .community-grid > .community-card,
+.v3 .community-grid > .community-card{
+  box-sizing:border-box;
+  height:100%;
+  align-self:stretch;
+  display:flex;
+  flex-direction:column;
+}
+.v3-home .community-card > div,
+.v3 .community-card > div{
+  box-sizing:border-box;
+  display:flex;
+  flex:1 1 auto;
+  flex-direction:column;
+  align-items:stretch;
+  min-width:0;
+}
+.v3-home .community-card > div > small,
+.v3 .community-card > div > small{
+  margin-top:auto;
+  padding-top:.35rem;
+}
+/* Static/demo article cards also keep their metadata at the bottom. */
+.cards-grid,
+.archive-grid,
+.results-grid{
+  align-items:stretch;
+}
+.story-card{
+  display:flex;
+  flex-direction:column;
+  box-sizing:border-box;
+  height:100%;
+}
+.story-card .story-card-copy{
+  display:flex;
+  flex:1 1 auto;
+  flex-direction:column;
+}
+.story-card .card-foot{
+  margin-top:auto;
+}
+/* Single-column mobile lists should take natural content height. */
+@media (max-width:620px){
+  .v3-home .community-grid > .community-card,
+  .v3 .community-grid > .community-card{height:auto;}
+}
