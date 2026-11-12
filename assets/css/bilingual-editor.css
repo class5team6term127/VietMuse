@@ -101,3 +101,17 @@
 .vm-bi-btn.danger{color:#972f28;border-color:#b55a50;background:#fffafa}
 .vm-bi-btn.danger:hover,.vm-bi-btn.danger:focus-visible{color:#82231e;background:#fde8e6}
 @media(max-width:700px){.vm-bi-management{display:block}.vm-bi-management-actions{justify-content:flex-start;margin-top:.9rem}.vm-bi-management-actions .vm-bi-btn{flex:1 1 150px}}
+
+/* V27 - optional bilingual editorial Crowd Poll */
+.vm-crowd-head{display:flex;justify-content:space-between;gap:1.2rem;align-items:center;flex-wrap:wrap}
+.vm-crowd-head .vm-bi-section-head{margin-bottom:.35rem}
+.vm-crowd-toggle{display:flex;align-items:center;gap:.55rem;cursor:pointer;font-weight:750;color:#813527;border:1px solid #d7b689;background:#f6ece0;padding:.7rem 1rem;border-radius:9px}
+.vm-crowd-toggle input{width:20px;height:20px;accent-color:#813527}
+#bi-crowd-fields{margin-top:1.2rem}
+#bi-crowd-fields[hidden],#bi-crowd-error[hidden]{display:none!important}
+.vm-crowd-rows{display:grid;gap:.7rem;margin:.8rem 0 1rem}
+.vm-crowd-row{display:grid;grid-template-columns:2rem minmax(0,1fr) minmax(0,1fr) auto;gap:.75rem;align-items:end;border:1px solid #e0cebd;background:#fffaf5;padding:.8rem;border-radius:9px}
+.vm-crowd-position{font-weight:800;color:#813527;align-self:center}
+.vm-crowd-remove{font-size:1.25rem;min-width:38px;min-height:40px;padding:0}
+.vm-crowd-error{color:#a22222!important}
+@media(max-width:650px){.vm-crowd-row{grid-template-columns:1.5rem minmax(0,1fr) auto;gap:.5rem}.vm-crowd-row .vm-bi-field:nth-of-type(2){grid-column:2}.vm-crowd-remove{grid-column:3;grid-row:1/3;align-self:center}}

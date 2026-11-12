@@ -660,3 +660,23 @@ html[data-vm-logo-theme="dark"] .footer-logo .footer-mark{background:#292522}
 @media(max-width:780px){.vm-load-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.vm-load-grid .vm-load-card:nth-child(3){display:none}}
 @media(max-width:620px){.vm-news-loading{padding-top:18px;min-height:54vh}.vm-load-topline{align-items:flex-start;flex-direction:column;gap:4px}.vm-load-grid{grid-template-columns:1fr}.vm-load-grid .vm-load-card:not(:first-child){display:none}.vm-load-grid .vm-load-card:first-child .vm-load-image{aspect-ratio:1.5}}
 @media(prefers-reduced-motion:reduce){.vm-news-loading .vm-load-image,.vm-news-loading .vm-load-bar{animation:none}}
+
+/* V27 - editorial Crowd Poll (separate from Forum polls) */
+.vm-crowd-poll{background:#f6eee5;border:1px solid #dec5ac;border-top:4px solid #813527;border-radius:9px;padding:clamp(18px,3vw,30px);margin:2.3rem 0}
+.vm-crowd-kicker{display:block;font-weight:800;font-size:.7rem;letter-spacing:.12em;color:#813527;margin-bottom:.65rem}
+.vm-crowd-poll h3{font-family:Georgia,serif;font-size:clamp(1.25rem,2.6vw,1.85rem);line-height:1.35;margin:0 0 .5rem;color:#35231f}
+.vm-crowd-poll p{font-size:.88rem;line-height:1.5;color:#6c5950}
+.vm-crowd-options{display:grid;gap:.75rem;margin-top:1.4rem}
+.vm-crowd-choice{width:100%;display:grid;gap:.48rem;border:1px solid #cbb099;border-radius:9px;background:#fffdf9;color:#49342c;padding:.9rem 1rem;text-align:left;font:inherit;cursor:pointer;transition:border-color .12s ease,background .12s ease}
+.vm-crowd-choice:hover:not(:disabled),.vm-crowd-choice:focus-visible{border-color:#813527;background:#fff8f0;color:#49342c;outline-offset:2px}
+.vm-crowd-choice.selected{border-color:#813527;box-shadow:inset 3px 0 #813527;background:#fcf1e7}
+.vm-crowd-choice:disabled{cursor:default;opacity:1;color:#49342c}
+.vm-crowd-choice-head{display:flex;justify-content:space-between;gap:1rem;align-items:center}
+.vm-crowd-choice-head>span{min-width:0;overflow-wrap:anywhere}
+.vm-crowd-choice-head>b{font-weight:850;color:#813527;flex-shrink:0}
+.vm-crowd-track{height:6px;border-radius:99px;background:#e9d9c9;overflow:hidden;display:block}
+.vm-crowd-track>span{display:block;height:100%;background:#813527;border-radius:99px;transition:width .2s ease}
+.vm-crowd-choice small{font-size:.7rem;color:#76665d}
+.vm-crowd-poll .vm-crowd-foot{font-weight:650;margin:1.1rem 0 .3rem}
+.vm-crowd-poll .vm-crowd-note{font-size:.76rem;margin:.2rem 0 0}
+@media(max-width:600px){.vm-crowd-poll{padding:1rem}.vm-crowd-choice{padding:.8rem}}
