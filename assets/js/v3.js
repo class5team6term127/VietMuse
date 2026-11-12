@@ -13,6 +13,7 @@ const loading='<p class="muted-small">Loading data…</p>';
 let me=null,role='reader', allPosts=[],metrics={},mode=(new URLSearchParams(location.search).get('mode')==='signup'?'signup':'login'),filter='all',sort=(new URLSearchParams(location.search).get('sort')==='new'?'new':'views'),currentPost=null;
 let draftPoll=['Agree','Disagree'];
 let guestSubmitting=false, guestReceipt='';
+let publicLoadError=null; // Do not show demo stories when the live database is unavailable.
 const isGuestUser=()=>Boolean(me?.is_anonymous);
 const hasRegisteredAccount=()=>Boolean(me&&!isGuestUser());
 const activeStaff=()=>role==='admin'||role==='editor';
@@ -142,8 +143,23 @@ if(c.error)alertUI('Comment error: '+c.error.message,true);else staffComments=c.
 $('#v3-count-news').textContent=staffPosts.filter(x=>x.post_type==='news').length;$('#v3-count-forum').textContent=staffPosts.filter(x=>x.post_type==='forum').length;$('#v3-count-wait').textContent=staffPosts.filter(x=>x.status==='pending').length+staffComments.length;
 renderStaffPosts();const el=$('#v3-moderate-comments');if(el)el.innerHTML=staffComments.map(x=>`<div class="comment-moderation"><p><b>${html(x.display_name)}</b> · ${x.kind==='opinion'?'Forum opinion':'News comment'} · <small>${stamp(x.created_at)}</small></p><blockquote>${html(x.body)}</blockquote><div class="form-buttons"><button type="button" class="primary-action" data-mod-comment="published" data-id="${x.id}">Approve</button><button type="button" class="outline-action" data-mod-comment="rejected" data-id="${x.id}">Reject</button><button type="button" class="outline-action" data-delete-comment="${x.id}">Delete</button></div></div>`).join('')||'<p>No comments or opinions awaiting review.</p>';loadRoles()}
 async function renderStaffPosts(){const el=$('#v3-moderate-posts');if(!el)return;let status=$('#v3-admin-status')?.value||'all',type=$('#v3-admin-type')?.value||'all';const ps=staffPosts.filter(x=>(status==='all'||x.status===status)&&(type==='all'||x.post_type===type));el.innerHTML=ps.map(modPost).join('')||'<p>No matching posts.</p>';for(const p of ps.filter(x=>x.post_type==='forum'&&x.poll_enabled)){let {data}=await sb.from('news_poll_options').select('label').eq('post_id',p.id).order('position');let s=$(`[data-options-of="${p.id}"]`);if(s)s.textContent=(data||[]).map(x=>x.label).join(' / ')||'No poll options available'}}
-async function fetchPosts(){if(!sb)return;const [a,b]=await Promise.all([sb.from('news_posts').select('*').eq('status','published').order('published_at',{ascending:false}).limit(200),sb.from('news_metrics').select('*').limit(500)]);
-if(a.error){if(document.body.dataset.page!=='account')alertUI('Could not load published stories: '+a.error.message,true);return}allPosts=a.data||[];if(!b.error)metrics=Object.fromEntries((b.data||[]).map(x=>[x.post_id,x]));}
+async function fetchPosts(){
+ if(!sb){publicLoadError='connection unavailable';return false;}
+ const [a,b]=await Promise.all([
+   sb.from('news_posts').select('*').eq('status','published').order('published_at',{ascending:false}).limit(200),
+   sb.from('news_metrics').select('*').limit(500)
+ ]);
+ if(a.error){
+   publicLoadError=a.error.message||'database request failed';
+   console.warn('VietMuse: could not load published articles:',publicLoadError);
+   return false;
+ }
+ allPosts=a.data||[];
+ metrics=b.error?{}:Object.fromEntries((b.data||[]).map(x=>[x.post_id,x]));
+ if(b.error)console.warn('VietMuse: metrics unavailable:',b.error.message);
+ publicLoadError=null;
+ return true;
+}
 async function uploadCover(file){if(!file||!file.size)return null;if(!me)throw Error('You must sign in.');if(!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>2*1024*1024)throw Error('Only JPG, PNG, or WebP images up to 2 MB are accepted.');const suffix={'image/png':'png','image/jpeg':'jpg','image/webp':'webp'}[file.type],fileKey=`${me.id}/${crypto.randomUUID()}.${suffix}`;const {error}=await sb.storage.from('news-covers').upload(fileKey,file,{contentType:file.type,upsert:false});if(error)throw Error('Image upload failed: '+error.message+' (please create the news-covers storage bucket)');return sb.storage.from('news-covers').getPublicUrl(fileKey).data.publicUrl}
 async function sendForum(form){
  if(!sb||guestSubmitting)return;
@@ -230,13 +246,73 @@ if(authNav){
 }
 $$('.vm-staff-only').forEach(link=>link.classList.toggle('vm-is-staff',activeStaff()));const page=document.body.dataset.page;if(!skipRender){if(page==='account'){render();myPosts()}if(page==='submit'&&!guestSubmitting)render();if(page==='moderation'){render();if(activeStaff())loadAdmin()}if(page==='reader')viewArticle()}}
 function podcast(){const episodes=(window.PODCASTS||[]).filter(p=>p.title&&isUrl(p.audioUrl));return shell('Podcast','LISTEN / AUDIO','Listen to episodes made or licensed by the team.',`<div class="podcast-header"><h2>Podcast Studio</h2><p>Add episodes to the PODCASTS list in assets/js/data.js.</p></div>${episodes.map((e,i)=>`<article class="podcast-entry"><small>EPISODE ${i+1}</small><h2>${html(e.title)}</h2><p>${html(e.description||'')}</p><audio controls preload="none" src="${html(e.audioUrl)}"></audio></article>`).join('')||'<p>No podcast episodes have been added yet.</p>'}`)}
-function render(){const page=document.body.dataset.page,root=$('#page-content');if(!root)return;if(!ready){if(['submit','account','moderation','reader'].includes(page))root.innerHTML=shell('Data connection','SETUP / REQUIRED','Account features require a Supabase connection.',note);return}switch(page){case 'home':root.innerHTML=homepage();break;case 'category':root.innerHTML=archives();break;case 'search':root.innerHTML=searchPage();break;case 'explore':root.innerHTML=explore();refreshExplore();break;case 'submit':root.innerHTML=submitPage();break;case 'account':root.innerHTML=accountPage();break;case 'moderation':root.innerHTML=adminPage();break;case 'podcast':root.innerHTML=podcast();break;case 'reader':viewArticle();break;case 'article':root.innerHTML=shell('Demo articles moved to CMS','ARTICLE / MIGRATION','V2 example stories are only fallback sample data now.','<p>Ask an editor to import sample stories into the CMS and publish suitable material. <a href="./index.html">Back to home →</a></p>');break;case 'saved':root.innerHTML=shell('Saved stories','READING LIST','V2 bookmarks apply only to legacy sample articles.','<p>V3 does not yet sync new bookmarks. You can bookmark this page in your browser.</p>');break}window.VietMuseWeather.mount()}
+function publicLoadFailure(){
+ const vi=window.VIETMUSE_LANG==='vi';
+ return `<div class="shell inner-page vm-public-load-error" role="alert"><div class="notice-panel"><strong>${vi?'Chưa tải được bài báo':'Unable to load stories'}</strong><p>${vi?'VietMuse đang gặp sự cố kết nối dữ liệu. Xin thử lại sau giây lát.':'VietMuse could not connect to its newsroom. Please try again shortly.'}</p><button class="primary-action" id="vm-retry-public" type="button">${vi?'Tải lại bài báo':'Retry loading stories'}</button></div></div>`;
+}
+function render(){
+ const page=document.body.dataset.page,root=$('#page-content');
+ if(!root)return;
+ const isPublic=['home','category','search','explore'].includes(page);
+ if(!ready){
+   root.innerHTML=isPublic?publicLoadFailure():(['submit','account','moderation','reader'].includes(page)?shell('Data connection','SETUP / REQUIRED','Account features require a Supabase connection.',note):root.innerHTML);
+   window.VietMuseI18n?.translateNow?.();
+   return;
+ }
+ if(isPublic&&publicLoadError){root.innerHTML=publicLoadFailure();window.VietMuseI18n?.translateNow?.();return;}
+ switch(page){
+ case 'home':root.innerHTML=homepage();break;
+ case 'category':root.innerHTML=archives();break;
+ case 'search':root.innerHTML=searchPage();break;
+ case 'explore':root.innerHTML=explore();refreshExplore();break;
+ case 'submit':root.innerHTML=submitPage();break;
+ case 'account':root.innerHTML=accountPage();break;
+ case 'moderation':root.innerHTML=adminPage();break;
+ case 'podcast':root.innerHTML=podcast();break;
+ case 'reader':viewArticle();break;
+ case 'article':root.innerHTML=shell('Demo articles moved to CMS','ARTICLE / MIGRATION','V2 example stories are only fallback sample data now.','<p>Ask an editor to import sample stories into the CMS and publish suitable material. <a href="./index.html">Back to home →</a></p>');break;
+ case 'saved':root.innerHTML=shell('Saved stories','READING LIST','V2 bookmarks apply only to legacy sample articles.','<p>V3 does not yet sync new bookmarks. You can bookmark this page in your browser.</p>');break;
+ }
+ // Make VI translations synchronous, before the next browser paint.
+ window.VietMuseI18n?.translateNow?.();
+ window.VietMuseWeather?.mount?.();
+}
 async function refreshPublic(){await fetchPosts();const page=document.body.dataset.page;if(['home','category','search','explore'].includes(page))render()}
-function attach(){document.addEventListener('submit',e=>{const f=e.target;if(['v3-submit','v3-auth','v3-editor-form','v3-comment','v3-grant'].includes(f.id)){e.preventDefault();if(f.id==='v3-submit')sendForum(f);if(f.id==='v3-auth')auth(f);if(f.id==='v3-editor-form')saveNews(f,e.submitter);if(f.id==='v3-comment')sendComment(f);if(f.id==='v3-grant')grantRole(f)}});
+function attach(){document.addEventListener('click',async e=>{if(e.target.closest('#vm-retry-public')){e.preventDefault();const root=$('#page-content');if(root)root.innerHTML='<div class="shell vm-news-loading" role="status">Loading VietMuse stories…</div>';await refreshPublic();}});document.addEventListener('submit',e=>{const f=e.target;if(['v3-submit','v3-auth','v3-editor-form','v3-comment','v3-grant'].includes(f.id)){e.preventDefault();if(f.id==='v3-submit')sendForum(f);if(f.id==='v3-auth')auth(f);if(f.id==='v3-editor-form')saveNews(f,e.submitter);if(f.id==='v3-comment')sendComment(f);if(f.id==='v3-grant')grantRole(f)}});
 document.addEventListener('error',e=>{if(e.target?.matches?.('img.vm-story-cover')&&!e.target.dataset.fallback){e.target.dataset.fallback='1';e.target.src='./assets/images/vietmuse-mark.webp';e.target.classList.add('vm-cover-placeholder');}},true);
 document.addEventListener('change',e=>{if(e.target.id==='v3-sort'){sort=e.target.value;refreshExplore()}if(e.target.id==='v3-filter'){filter=e.target.value;refreshExplore()}if(e.target.id==='v3-category-sort'){refreshCategory()}if(['v3-admin-status','v3-admin-type'].includes(e.target.id))renderStaffPosts();if(e.target.id==='v3-poll-switch'){const group=$('#v3-options-list'),add=$('#v3-add-option');if(group)$$('input',group).forEach(x=>x.disabled=!e.target.checked);if(add)add.disabled=!e.target.checked||$$('.v3-poll-choice').length>=6}});
 document.addEventListener('click',async e=>{let el=e.target.closest('[data-auth]');if(el){mode=el.dataset.auth;render();return}if(e.target.closest('#v3-logout')){await sb.auth.signOut();me=null;role='reader';render();alertUI('Signed out.');return}if(e.target.closest('#v3-add-option')){const old=$$('.v3-poll-choice');if(old.length>=6)return;$('#v3-options-list').insertAdjacentHTML('beforeend',`<label>Option ${old.length+1}<input class="v3-poll-choice" required maxlength="120"></label>`);if(old.length+1>=6)e.target.disabled=true;return}
 el=e.target.closest('[data-choice]');if(el){vote(el.dataset.postId,el.dataset.choice);return}el=e.target.closest('[data-review]');if(el){el.disabled=true;await review(el.dataset.id,el.dataset.review);return}el=e.target.closest('[data-delete]');if(el){await deletePost(el.dataset.delete);return}el=e.target.closest('[data-mod-comment]');if(el){await reviewComment(el.dataset.id,el.dataset.modComment);return}el=e.target.closest('[data-delete-comment]');if(el){await reviewComment(el.dataset.deleteComment,'',true);return}el=e.target.closest('[data-edit-news]');if(el){const p=staffPosts.find(x=>x.id===el.dataset.editNews);if(p){location.href='./soan-bai-song-ngu.html?id='+encodeURIComponent(p.id)}return}if(e.target.closest('#v3-cancel-edit')){$('#v3-staff-editor').innerHTML=staffForm();return}if(e.target.closest('#v3-import')){await importOld();return}el=e.target.closest('[data-revoke]');if(el){await revokeRole(el.dataset.revoke);return}})}
-async function init(){attach();const head=$('.topbar-note');if(head)head.textContent=ready?'News & perspectives · Community moderation':'Demo mode · Database not connected';if(!$('#ad-top'))$('#site-header')?.insertAdjacentHTML('afterend','<div class="shell ad-top" id="ad-top"><span>TOP ADVERTISING SPACE</span><small>No advertisements placed</small></div>');if(!ready){render();return}await reloadUser(true);await fetchPosts();render();if(document.body.dataset.page==='account'&&hasRegisteredAccount())myPosts();if(document.body.dataset.page==='moderation'&&activeStaff())loadAdmin();sb.auth.onAuthStateChange(event=>{if(['SIGNED_IN','SIGNED_OUT','USER_UPDATED'].includes(event))setTimeout(async()=>{await reloadUser();await refreshPublic()},0)})}
+async function init(){
+ attach();
+ const head=$('.topbar-note');
+ if(head)head.textContent=ready?'News & perspectives · Community moderation':'Database not connected';
+ if(!$('#ad-top'))$('#site-header')?.insertAdjacentHTML('afterend','<div class="shell ad-top" id="ad-top"><span>TOP ADVERTISING SPACE</span><small>No advertisements placed</small></div>');
+ if(!ready){render();return;}
+ const page=document.body.dataset.page;
+ const isPublic=['home','category','search','explore'].includes(page);
+ if(isPublic){
+   // Public articles have no dependency on the visitor's login state.
+   // Show the real newsroom as soon as its data arrives, never the legacy demo.
+   await fetchPosts();
+   render();
+   void reloadUser(true).catch(err=>console.warn('VietMuse: account status unavailable',err));
+ }else{
+   await reloadUser(true);
+   await fetchPosts();
+   render();
+   if(page==='account'&&hasRegisteredAccount())myPosts();
+   if(page==='moderation'&&activeStaff())loadAdmin();
+ }
+ sb.auth.onAuthStateChange(event=>{
+   if(['SIGNED_IN','SIGNED_OUT','USER_UPDATED'].includes(event)){
+     setTimeout(async()=>{
+       // Auth changes update account controls, but cannot change public news data.
+       // Re-rendering the homepage here caused a second visible layout jump.
+       await reloadUser(isPublic);
+     },0);
+   }
+ });
+}
 document.addEventListener('DOMContentLoaded',init);
 })();

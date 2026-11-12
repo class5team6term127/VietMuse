@@ -85,12 +85,24 @@ function updateSaveBtns(){$$('[data-bookmark]').forEach(b=>{const saved=isSaved(
 let toastTimer=0;
 function toast(message){let box=$('#toast-message');if(!box){box=document.createElement('div');box.id='toast-message';box.className='toast-message';box.setAttribute('role','status');document.body.appendChild(box)}box.textContent=window.VietMuseI18n.t(message);box.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>box.classList.remove('show'),3300)}
 async function share(){const url=window.location.href;try{if(navigator.share){await navigator.share({title:document.title,url});return}if(navigator.clipboard && window.isSecureContext){await navigator.clipboard.writeText(url);toast('Article link copied!');return}const temp=document.createElement('textarea');temp.value=url;document.body.appendChild(temp);temp.select();const ok=document.execCommand('copy');temp.remove();toast(ok?'Link copied!':'Please copy the URL from the address bar.')}catch(e){if(e.name!=='AbortError')toast('Please copy the URL from the address bar.')}}
+// V26: Public CMS pages must never display the old sample-article layout.
+// A lightweight skeleton is shown only while published stories are fetched.
+function cmsLoading(page){
+ const vi=window.VIETMUSE_LANG==='vi';
+ const msg=vi?'Đang tải tin tức VietMuse…':'Loading VietMuse stories…';
+ const section=page==='home'?(vi?'TIN NỔI BẬT':'IN FOCUS'):(vi?'BÀI VIẾT':'STORIES');
+ const bar=(w='100%')=>`<span class="vm-load-bar" style="width:${w}"></span>`;
+ const card=`<div class="vm-load-card">${bar('100%')}<div class="vm-load-image"></div><div class="vm-load-copy">${bar('40%')}${bar('92%')}${bar('72%')}${bar('38%')}</div></div>`;
+ return `<div class="shell vm-news-loading ${page==='home'?'vm-news-loading-home':''}" role="status" aria-live="polite" aria-busy="true"><div class="vm-load-topline"><span class="vm-load-label">${section}</span><span class="vm-load-message">${msg}</span></div><div class="vm-load-grid">${card}${card}${card}</div></div>`;
+}
 function init(){
  const header=$('#site-header'),main=$('#page-content'),foot=$('#site-footer');if(!header||!main||!foot)return;
  header.innerHTML=nav();foot.innerHTML=footer();let page=document.body.dataset.page||'home';
- main.innerHTML=({home,category:categoryPage,article:articlePage,search:searchPage,saved:savedPage,about:aboutPage,submit:()=>'',account:()=>'',moderation:()=>'',newsroom:()=>'',explore:()=>'',podcast:()=>'',reader:()=>''}[page]||home)();
+ const cmsPage=['home','category','search','explore'].includes(page);
+ main.innerHTML=cmsPage?cmsLoading(page):({home,category:categoryPage,article:articlePage,search:searchPage,saved:savedPage,about:aboutPage,submit:()=>'',account:()=>'',moderation:()=>'',newsroom:()=>'',explore:()=>'',podcast:()=>'',reader:()=>''}[page]||home)();
  if(page==='home')document.title=`Home | ${S.name}`;
  updateSaveCount();updateSaveBtns();
+ window.VietMuseI18n?.translateNow?.();
  const currentUrl=location.pathname.split('/').pop()||'index.html';$$('.main-nav a').forEach(a=>{try{if(new URL(a.href,location.href).pathname.endsWith(currentUrl) && currentUrl==='index.html')a.classList.add('active');if(page==='category' && new URL(a.href).searchParams.get('muc')===new URLSearchParams(location.search).get('muc'))a.classList.add('active')}catch{}});
  document.addEventListener('click',event=>{
    const save=event.target.closest('[data-bookmark]');if(save){event.preventDefault();toggleSave(save.dataset.bookmark);return}

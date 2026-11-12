@@ -45,5 +45,6 @@ function translateTitle(){document.documentElement.lang=lang;if(lang==='vi')docu
 function setLang(next){if(next!=='vi'&&next!=='en')return;try{localStorage.setItem('vietmuse-lang',next)}catch{}if(document.body?.dataset.page==='reader'&&document.body.dataset.articleLanguage&&document.body.dataset.articleLanguage!==next){const url=document.body.dataset[next==='vi'?'translationVi':'translationEn'];if(url){location.href=url;return}}location.reload()}
 document.addEventListener('click',event=>{const b=event.target.closest('[data-vm-lang]');if(b){event.preventDefault();setLang(b.dataset.vmLang)}});
 document.addEventListener('DOMContentLoaded',()=>{document.documentElement.lang=lang;schedule();const observer=new MutationObserver(schedule);observer.observe(document.body,{childList:true,subtree:true,characterData:true,attributes:false});});
-window.VietMuseI18n={lang,t,switcher,schedule,setLang};
+function translateNow(){if(lang==='vi'){translateText(document.body);translateTitle()}}
+window.VietMuseI18n={lang,t,switcher,schedule,setLang,translateNow};
 })();
