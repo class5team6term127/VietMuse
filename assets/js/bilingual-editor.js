@@ -17,7 +17,17 @@ function safeUrl(url){try{const u=new URL(url);return u.protocol==='https:'&&u.h
 function field(label,name,val='',attrs=''){return `<label class="vm-bi-field">${label}<input name="${name}" value="${esc(val)}" ${attrs}></label>`}
 function textField(label,name,val='',len=3,attrs=''){return `<label class="vm-bi-field">${label}<textarea name="${name}" rows="${len}" ${attrs}>${esc(val)}</textarea></label>`}
 function langPanel(lang,p){const local=lang==='vi';const label=local?'VIETNAMESE VERSION':'ENGLISH VERSION';return `<section class="vm-bi-lang" aria-label="${label}"><h3>${local?'🇻🇳 Vietnamese version · Bản tiếng Việt':'🇬🇧 English version · Bản tiếng Anh'}</h3>${field(local?'Tiêu đề':'Headline',`${lang}_title`,p?.title||'','maxlength="180" minlength="8"')}${textField(local?'Tóm tắt (không bắt buộc)':'Summary (optional)',`${lang}_excerpt`,p?.excerpt||'',3,'maxlength="400"')}${textField(local?'Nội dung bài (tối thiểu 60 ký tự)':'Article body (minimum 60 characters)',`${lang}_body`,p?.body||'',14,'maxlength="30000"')}
-<div class="vm-bi-toolbar"><button type="button" class="vm-bi-btn" data-insert="heading" data-lang="${lang}">+ Heading</button><button type="button" class="vm-bi-btn" data-insert="bold" data-lang="${lang}">** Bold</button><button type="button" class="vm-bi-btn" data-insert="quote" data-lang="${lang}">❝ Quote</button><button type="button" class="vm-bi-btn" data-preview="${lang}">${local?'Xem trước':'Preview'}</button></div>
+<div class="vm-bi-toolbar"><button type="button" class="vm-bi-btn" data-insert="heading" data-lang="${lang}">+ Heading</button><button type="button" class="vm-bi-btn" data-insert="bold" data-lang="${lang}">** Bold</button><button type="button" class="vm-bi-btn" data-insert="quote" data-lang="${lang}">❝ Quote</button><button type="button" class="vm-bi-btn" data-note-open="${lang}" aria-expanded="false" aria-controls="bi-note-builder-${lang}">ⓘ ${local?'Bên lề':'Side note'}</button><button type="button" class="vm-bi-btn" data-preview="${lang}">${local?'Xem trước':'Preview'}</button></div>
+<div class="vm-bi-note-builder" id="bi-note-builder-${lang}" hidden>
+  <h4>${local?'Thêm thông tin bên lề':'Insert a side note'}</h4>
+  <div class="vm-bi-note-fields">
+    <label class="vm-bi-field">${local?'Tiêu đề (không bắt buộc)':'Title (optional)'}<input name="${lang}_note_title" maxlength="100" placeholder="${local?'Bạn có biết?':'Did you know?'}"></label>
+    <label class="vm-bi-field">${local?'Nội dung bên lề':'Side note text'}<textarea name="${lang}_note_content" maxlength="1800" rows="4" placeholder="${local?'Ghi thông tin bổ sung tại đây…':'Additional context goes here…'}"></textarea></label>
+  </div>
+  <label class="vm-bi-note-fill"><input name="${lang}_note_fill" type="checkbox"> ${local?'Đổ nền màu kem (tùy chọn)':'Filled cream background (optional)'}</label>
+  <div class="vm-bi-note-actions"><button class="vm-bi-btn primary" type="button" data-note-insert="${lang}">${local?'Chèn vào bài':'Insert into article'}</button><button class="vm-bi-btn" type="button" data-note-cancel="${lang}">${local?'Hủy':'Cancel'}</button></div>
+  <p class="vm-bi-help">${local?'Khung bên lề sẽ xuất hiện tại vị trí con trỏ trong bài.':'The note appears wherever the text cursor is placed.'}</p>
+</div>
 <div class="vm-bi-preview" id="bi-preview-${lang}" hidden></div></section>`}
 function managementHTML(){
  if(!editing?.id)return '';
@@ -82,6 +92,31 @@ function insertText(lang,text){const box=$(`[name="${lang}_body"]`);if(!box)retu
 function bind(){
  document.querySelectorAll('[data-bi-save]').forEach(b=>b.addEventListener('click',()=>save(b.dataset.biSave)));
  document.querySelectorAll('[data-insert]').forEach(b=>b.addEventListener('click',()=>{const lang=b.dataset.lang,val=b.dataset.insert;insertText(lang,val==='heading'?'\n\n## Section heading\n':val==='bold'?'**bold text**':'\n\n> Quote\n')}));
+ document.querySelectorAll('[data-note-open]').forEach(button=>button.addEventListener('click',()=>{
+   const lang=button.dataset.noteOpen,panel=$(`#bi-note-builder-${lang}`);
+   panel.hidden=!panel.hidden;button.setAttribute('aria-expanded',String(!panel.hidden));
+   if(!panel.hidden)$(`[name="${lang}_note_title"]`)?.focus();
+ }));
+ document.querySelectorAll('[data-note-cancel]').forEach(button=>button.addEventListener('click',()=>{
+   const lang=button.dataset.noteCancel,panel=$(`#bi-note-builder-${lang}`);
+   panel.hidden=true;$(`[data-note-open="${lang}"]`)?.setAttribute('aria-expanded','false');
+ }));
+ document.querySelectorAll('[data-note-insert]').forEach(button=>button.addEventListener('click',()=>{
+   const lang=button.dataset.noteInsert;
+   const noteTitle=String($(`[name="${lang}_note_title"]`)?.value||'').trim().replace(/[|\r\n]/g,' ') || (lang==='vi'?'Thông tin bên lề':'Side note');
+   const noteContent=String($(`[name="${lang}_note_content"]`)?.value||'').trim();
+   if(!noteContent){status(tx('Điền nội dung của khung bên lề trước khi chèn.','Enter the side note text before inserting.'),'error');return;}
+   if(/^:::\s*$/m.test(noteContent)){status(tx('Nội dung không được chứa dòng ::: riêng.','A line containing only ::: is reserved for the note format.'),'error');return;}
+   const fill=$(`[name="${lang}_note_fill"]`)?.checked;
+   const marker=`\n\n:::note${fill?' fill':''}${'|'+noteTitle}\n${noteContent}\n:::\n\n`;
+   const editor=$(`[name="${lang}_body"]`);
+   if(editor.value.length+marker.length>30000){status(tx('Nội dung bài vượt giới hạn 30.000 ký tự.','Article body exceeds 30,000 characters.'),'error');return;}
+   insertText(lang,marker);
+   $(`#bi-note-builder-${lang}`).hidden=true;
+   $(`[data-note-open="${lang}"]`)?.setAttribute('aria-expanded','false');
+   $(`[name="${lang}_note_title"]`).value='';$(`[name="${lang}_note_content"]`).value='';
+   $(`[name="${lang}_note_fill"]`).checked=false;
+ }));
  document.querySelectorAll('[data-preview]').forEach(b=>b.addEventListener('click',()=>{const lang=b.dataset.preview,box=$(`#bi-preview-${lang}`);box.hidden=!box.hidden;if(!box.hidden){const t=$(`[name="${lang}_body"]`).value;box.innerHTML=window.VMStoryBody?window.VMStoryBody(t):`<p>${esc(t)}</p>`;}}));
  $('#bi-import-file').addEventListener('change',readImport);
  $('#bi-do-import').addEventListener('click',importDrafts);

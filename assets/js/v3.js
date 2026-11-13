@@ -23,7 +23,30 @@ const note='<div class="setup-note"><strong>Supabase is not connected.</strong> 
 function renderStoryBody(body){
  const lines=String(body||'').replace(/\r/g,'').split('\n'),out=[];let paragraphs=[],items=[];
  const flush=()=>{if(paragraphs.length){const txt=html(paragraphs.join(' ')).replace(/\*\*([^*\n]+)\*\*/g,'<strong>$1</strong>');out.push('<p>'+txt+'</p>');paragraphs=[]}if(items.length){out.push('<ul class="vm-story-list">'+items.map(x=>'<li>'+html(x).replace(/\*\*([^*\n]+)\*\*/g,'<strong>$1</strong>')+'</li>').join('')+'</ul>');items=[]}};
- for(const raw of lines){const line=raw.trim();if(!line){flush();continue}
+ // Parse a dedicated block instead of converting stored article body into raw HTML.
+ // Both :::note and the earlier :::info spelling remain supported.
+ for(let i=0;i<lines.length;i++){
+   const raw=lines[i],line=raw.trim();
+   const note=line.match(/^:::(?:note|info)(?:\s+(fill))?(?:\|([^\n|]{0,100}))?$/i);
+   if(note){
+     const end=lines.findIndex((value,k)=>k>i&&value.trim()===':::');
+     if(end>i){
+       const content=lines.slice(i+1,end).join('\n').trim();
+       flush();
+       if(content){
+         const title=String(note[2]||'').trim()||(window.VIETMUSE_LANG==='vi'?'Thông tin bên lề':'Side note');
+         const paragraphsHTML=content.split(/\n\s*\n/).filter(Boolean).map(part=>
+           '<p>'+html(part.trim()).replace(/\*\*([^*\n]+)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>')+'</p>'
+         ).join('');
+         out.push('<aside class="vm-side-note'+(note[1]?' is-filled':'')+'" role="note">'+
+           '<div class="vm-side-note-title"><span aria-hidden="true" class="vm-side-note-symbol">i</span>'+html(title)+'</div>'+
+           '<div class="vm-side-note-content">'+paragraphsHTML+'</div></aside>');
+       }
+       i=end;
+       continue;
+     }
+   }
+   if(!line){flush();continue}
    // [[image|HTTPS-URL|caption|source]]; the source is optional for older stories.
    const img=line.match(/^\[\[image\|(https:\/\/[^|\]\s]+)\|([^|\]]*)(?:\|([^\]]*))?\]\]$/);
    if(img){
