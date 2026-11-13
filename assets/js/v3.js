@@ -61,8 +61,14 @@ function articleCredits(p){
  const parts=['<span class="vm-credit-author">'+html(name)+'</span>'];
  if(p.editor_name)parts.push('<span class="vm-credit-role"><b>'+(isVi?'Biên tập':'Editor')+':</b> '+html(p.editor_name)+'</span>');
  if(p.translator_name)parts.push('<span class="vm-credit-role"><b>'+(isVi?'Dịch giả':'Translator')+':</b> '+html(p.translator_name)+'</span>');
+ // The original publication date stays unchanged when editors update a published story.
+ // news_post_guard sets both timestamps to the same transaction time at first publication.
  const date=p.published_at||p.created_at;
- parts.push('<time class="vm-credit-date"'+(date?' datetime="'+html(String(date).slice(0,10))+'"':'')+'>'+stamp(date)+'</time>');
+ const publicationMs=Date.parse(p.published_at||'');
+ const updateMs=Date.parse(p.updated_at||'');
+ const wasEdited=p.status==='published' && Number.isFinite(publicationMs) && Number.isFinite(updateMs) && updateMs>publicationMs;
+ const editedLabel=wasEdited?'<span class="vm-credit-edited">'+(isVi?'(Đã chỉnh sửa)':'(Edited)')+'</span>':'';
+ parts.push('<span class="vm-credit-date-group"><time class="vm-credit-date"'+(date?' datetime="'+html(String(date).slice(0,10))+'"':'')+'>'+stamp(date)+'</time>'+editedLabel+'</span>');
  return '<div class="vm-credit-bar">'+parts.join('')+'</div>';
 }
 function alertUI(message,error=false){let box=$('#v3-toast');if(!box){box=document.createElement('div');box.id='v3-toast';box.className='community-toast';box.setAttribute('role','status');document.body.append(box)}box.textContent=window.VietMuseI18n.t(message);box.className='community-toast show'+(error?' error':'');setTimeout(()=>box.classList.remove('show'),4500)}

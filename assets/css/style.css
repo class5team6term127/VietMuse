@@ -704,3 +704,14 @@ html[data-vm-logo-theme="dark"] .footer-logo .footer-mark{background:#292522}
 @media(max-width:850px){.reader-article .vm-related-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:590px){.reader-article .vm-related-heading{flex-direction:column;align-items:flex-start;gap:10px}.reader-article .vm-related-grid{grid-template-columns:1fr;gap:18px}.reader-article .vm-related-card{display:grid;grid-template-columns:minmax(105px,38%) minmax(0,1fr);gap:13px;padding-bottom:18px}.reader-article .vm-related-cover{aspect-ratio:4/3}.reader-article .vm-related-copy{padding:0}.reader-article .vm-related-copy h3{font-size:1rem;margin:5px 0 10px}.reader-article .vm-related-reason{font-size:.6rem;margin-bottom:6px}.reader-article .vm-related-read{font-size:.72rem}}
 @media(prefers-reduced-motion:reduce){.reader-article .vm-related-image{transition:none}}
+
+/* VietMuse V30 — show an edit label beside the original publication date. */
+.reader-article .vm-credit-date-group { white-space: normal; }
+.reader-article .vm-credit-date-group .vm-credit-date { color: #70645c; font-size: .79rem; font-weight: 400; }
+.reader-article .vm-credit-date-group .vm-credit-edited {
+  margin-left: .35em;
+  color: #813527;
+  font-size: .76rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
