@@ -13,6 +13,7 @@ const loading='<p class="muted-small">Loading data…</p>';
 let me=null,role='reader', allPosts=[],metrics={},mode=(new URLSearchParams(location.search).get('mode')==='signup'?'signup':'login'),filter='all',sort=(new URLSearchParams(location.search).get('sort')==='new'?'new':'views'),currentPost=null;
 let draftPoll=['Agree','Disagree'];
 let guestSubmitting=false, guestReceipt='';
+let crowdVoteSubmitting=false; // Prevent multiple guest sign-ins / duplicate vote requests.
 let publicLoadError=null; // Do not show demo stories when the live database is unavailable.
 const isGuestUser=()=>Boolean(me?.is_anonymous);
 const hasRegisteredAccount=()=>Boolean(me&&!isGuestUser());
@@ -217,13 +218,15 @@ $$('[data-choice]').forEach(b=>b.classList.toggle('selected',b.dataset.choice===
 function crowdPollMarkup(info){
  const lang=window.VIETMUSE_LANG==='vi'?'vi':'en';
  const total=Number(info.total_votes||0),mine=info.my_vote;
- const canVote=hasRegisteredAccount();
+ // All readers may choose. The session is created only after an actual click.
  const options=(Array.isArray(info.choices)?info.choices:[]).map(item=>{
    const n=Number(item.votes||0),pct=total?Math.round(100*n/total):0;
    const index=Number(item.index),selected=mine!==null&&mine!==undefined&&Number(mine)===index;
-   return `<button type="button" class="vm-crowd-choice${selected?' selected':''}" data-crowd-choice="${index}" ${canVote?'':'disabled'} aria-pressed="${selected?'true':'false'}"><span class="vm-crowd-choice-head"><span>${html(item[lang]||'')}</span><b>${pct}%</b></span><span class="vm-crowd-track"><span style="width:${pct}%"></span></span><small>${n.toLocaleString(lang==='vi'?'vi-VN':'en-GB')} ${lang==='vi'?'lượt chọn':'votes'}</small></button>`;
+   return `<button type="button" class="vm-crowd-choice${selected?' selected':''}" data-crowd-choice="${index}" aria-pressed="${selected?'true':'false'}"><span class="vm-crowd-choice-head"><span>${html(item[lang]||'')}</span><b>${pct}%</b></span><span class="vm-crowd-track"><span style="width:${pct}%"></span></span><small>${n.toLocaleString(lang==='vi'?'vi-VN':'en-GB')} ${lang==='vi'?'lượt chọn':'votes'}</small></button>`;
  }).join('');
- return `<section class="vote-box vm-crowd-poll"><span class="vm-crowd-kicker">VIETMUSE / CROWD POLL</span><h3>${html(info[lang==='vi'?'question_vi':'question_en']||'')}</h3><p>${lang==='vi'?'Quan điểm của bạn là gì?':'What do you think?'}</p><div class="vm-crowd-options">${options}</div><p class="vm-crowd-foot">${total.toLocaleString(lang==='vi'?'vi-VN':'en-GB')} ${lang==='vi'?'lượt tham gia · Mỗi tài khoản được chọn một phương án và có thể đổi lựa chọn.':'participants · One choice per account; you may change your vote.'}</p><p class="vm-crowd-note">${canVote?(lang==='vi'?'Kết quả phản ánh ý kiến tự nguyện, không đại diện cho toàn bộ độc giả.':'Results are voluntary and not a representative survey.'):(lang==='vi'?'Bạn cần <a href="./tai-khoan.html?mode=login">đăng nhập</a> để bình chọn.':'<a href="./tai-khoan.html?mode=login">Sign in</a> to vote.')}</p></section>`;
+ const foot=lang==='vi'?'lượt tham gia · Mỗi tài khoản hoặc phiên khách có một phiếu và được đổi lựa chọn.':'participants · One vote per account or guest session; you may change your choice.';
+ const note=lang==='vi'?'Không cần đăng nhập. Khi khách bình chọn, hệ thống tự tạo phiên ẩn danh. Kết quả không đại diện cho toàn bộ độc giả.':'No sign-in required. Guests receive an anonymous session when voting. Results are not a representative survey.';
+ return `<section class="vote-box vm-crowd-poll"><span class="vm-crowd-kicker">VIETMUSE / CROWD POLL</span><h3>${html(info[lang==='vi'?'question_vi':'question_en']||'')}</h3><p>${lang==='vi'?'Quan điểm của bạn là gì?':'What do you think?'}</p><div class="vm-crowd-options">${options}</div><p class="vm-crowd-foot">${total.toLocaleString(lang==='vi'?'vi-VN':'en-GB')} ${foot}</p><p class="vm-crowd-note">${note}</p></section>`;
 }
 async function loadCrowdPoll(p){
  const mount=$('#v3-crowd-poll');if(!mount||!p.translation_group||!sb)return;
@@ -234,13 +237,40 @@ async function loadCrowdPoll(p){
  mount.innerHTML=crowdPollMarkup(data);mount.hidden=false;
 }
 async function castCrowdVote(index){
- if(!hasRegisteredAccount())return alertUI(window.VIETMUSE_LANG==='vi'?'Đăng nhập để bình chọn.':'Sign in to vote.',true);
- if(!currentPost?.translation_group||!Number.isInteger(index))return;
+ if(crowdVoteSubmitting||!sb||!currentPost?.translation_group||!Number.isInteger(index))return;
+ const post=currentPost;
+ crowdVoteSubmitting=true;
  const buttons=$$('[data-crowd-choice]');buttons.forEach(b=>b.disabled=true);
- const {error}=await sb.rpc('news_crowd_vote',{p_group:currentPost.translation_group,p_choice_index:index});
- if(error){alertUI(error.message,true);buttons.forEach(b=>b.disabled=false);return;}
- alertUI(window.VIETMUSE_LANG==='vi'?'Đã ghi nhận bình chọn!':'Vote recorded!');
- await loadCrowdPoll(currentPost);
+ try{
+   // Keep a registered user's identity. Never replace a live account with an anonymous one.
+   if(!me){
+     const {data:sessionInfo,error:sessionError}=await sb.auth.getSession();
+     if(sessionError)throw sessionError;
+     if(sessionInfo?.session?.user)me=sessionInfo.session.user;
+   }
+   if(!me){
+     // V24 uses the same feature for guest Forum submissions.
+     const {data,error}=await sb.auth.signInAnonymously();
+     if(error){
+       const vi=window.VIETMUSE_LANG==='vi';
+       throw new Error((vi?'Không thể tạo phiên khách để bình chọn. Hãy bật Anonymous Sign-ins trên Supabase. ':'Unable to create a guest voting session. Enable Anonymous Sign-ins in Supabase. ')+error.message);
+     }
+     me=data?.user||data?.session?.user||null;
+     if(!me)throw new Error(window.VIETMUSE_LANG==='vi'?'Không thể xác nhận phiên khách. Vui lòng thử lại.':'Guest session could not be verified. Please try again.');
+   }
+   // Server-side RPC validates the actual Supabase Auth UID, poll visibility and choice.
+   const {error}=await sb.rpc('news_crowd_vote',{p_group:post.translation_group,p_choice_index:index});
+   if(error)throw error;
+   alertUI(window.VIETMUSE_LANG==='vi'?'Đã ghi nhận bình chọn!':'Vote recorded!');
+   // Re-read aggregate counts and the voter's own selection.
+   if(currentPost?.id===post.id)await loadCrowdPoll(post);
+ }catch(error){
+   console.warn('VietMuse Crowd Poll vote failed:',error);
+   alertUI(error?.message||(window.VIETMUSE_LANG==='vi'?'Không thể lưu phiếu. Hãy thử lại.':'Unable to save your vote. Please retry.'),true);
+ }finally{
+   crowdVoteSubmitting=false;
+   buttons.forEach(b=>{if(b.isConnected)b.disabled=false});
+ }
 }
 // V28: automatically recommend relevant published articles at the end of the story.
 function relatedStoriesMarkup(current){
@@ -352,7 +382,8 @@ async function init(){
      setTimeout(async()=>{
        // Auth changes update account controls, but cannot change public news data.
        // Re-rendering the homepage here caused a second visible layout jump.
-       await reloadUser(isPublic);
+       const reader=document.body.dataset.page==='reader';
+       await reloadUser(isPublic || (reader && (crowdVoteSubmitting || isGuestUser())));
      },0);
    }
  });
